@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apex Seller Conversation Trainer 🦈</title>
+  <meta name="description" content="Exclusive Apex Academy simulator for mastering seller conversations, rapport, MCTP discovery, and trust-based closing."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --card:#171717;
+      --panel:#1e1e1e;
+      --ink:#f1f1f1;
+      --faded:#a7a7a7;
+      --gold:#FFD700;
+      --gold-deep:#b78900;
+      --red:#ea4335;
+      --green:#34a853;
+      --border:#2a2a2a;
+      --accent-grad: linear-gradient(135deg,#FFD700,#FFA500);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+    .container{max-width:1100px;margin:0 auto;padding:26px}
+    .hidden{display:none !important}
+
+    /* Password Gate */
+    .gate{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(1000px 600px at 50% -10%, #1d1d1d, #0b0b0b);
+      z-index:9999;
+    }
+    .gate-card{
+      width:min(560px,92vw);background:var(--card);border:1px solid var(--border);border-radius:16px;
+      padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+    }
+    .gate-head{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+    .gate-logo{
+      width:56px;height:56px;border-radius:12px;display:grid;place-items:center;
+      background:var(--panel);border:1px solid var(--border);font-size:30px
+    }
+    .gate-title{font-weight:800;font-size:1.5rem;letter-spacing:.2px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .gate-sub{color:var(--faded);margin-bottom:16px}
+    .input{
+      width:100%;background:#131313;border:1px solid var(--border);border-radius:10px;
+      padding:14px 15px;font-size:16px;color:var(--ink);outline:none;transition:.2s
+    }
+    .input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.12)}
+    .btn{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:800}
+    .btn-primary{background:var(--accent-grad);color:#000}
+    .btn-ghost{background:#111;border:1px solid var(--border);color:var(--ink)}
+    .gate-actions{display:flex;gap:10px;margin-top:12px}
+    .err{color:#ff6b6b;font-weight:700;margin-top:10px;display:none}
+
+    /* Header */
+    header{
+      border-bottom:1px solid var(--border);background:var(--card);
+      position:sticky;top:0;z-index:5
+    }
+    .head-wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 26px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);object-fit:contain;background:#111}
+    .brand-title{font-weight:900;font-size:1.25rem;letter-spacing:.3px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .tag{font-size:.85rem;color:#000;background:var(--accent-grad);padding:6px 10px;border-radius:999px;font-weight:800;white-space:nowrap}
+
+    /* Layout */
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+    .title{font-size:1.05rem;font-weight:800;margin-bottom:8px}
+    .sub{color:var(--faded);font-size:.92rem;margin-bottom:12px}
+
+    /* Conversation area */
+    .conv{
+      height:440px;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px
+    }
+    .row{margin-bottom:12px}
+    .bubble{
+      display:inline-block;padding:10px 12px;border-radius:12px;border:1px solid var(--border)
+    }
+    .you{background:#0f1322}
+    .seller{background:#121212}
+    .choices{display:grid;gap:10px;margin-top:12px}
+    .choice{
+      padding:12px;border-radius:10px;border:1px solid var(--border);background:#131313;cursor:pointer;transition:.15s
+    }
+    .choice:hover{border-color:var(--gold);transform:translateY(-1px)}
+    .choice.hint{outline:2px dashed var(--gold);background:#151308}
+
+    /* Stats */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px}
+    .stat label{color:var(--faded);font-size:.8rem}
+    .stat .v{font-weight:900;font-size:1.15rem}
+    .trust-bar{height:10px;background:#111;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
+    .trust-fill{height:100%;background:var(--accent-grad);width:0%}
+
+    /* Footer actions */
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .pill{background:#111;border:1px solid var(--border);padding:10px 12px;border-radius:999px;font-weight:700}
+    .pill strong{color:var(--gold)}
+
+    footer{color:var(--faded);font-size:.85rem;text-align:center;margin:18px 0 36px}
+
+    /* Logo drop help */
+    .logo-hint{font-size:.8rem;color:var(--faded)}
+  </style>
+</head>
+<body>
+  <!-- PASSWORD GATE -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <div class="gate-head">
+        <div class="gate-logo">🦈</div>
+        <div>
+          <div class="gate-title">Apex Seller Conversation Trainer</div>
+          <div class="gate-sub">Exclusive access for Apex Academy students</div>
+        </div>
+      </div>
+      <input id="pw" type="password" placeholder="Enter access code" class="input" autocomplete="current-password"
+             onkeypress="if(event.key==='Enter'){unlock()}"/>
+      <div class="gate-actions">
+        <button class="btn btn-primary" onclick="unlock()">Unlock Access</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('pw').value='';document.getElementById('pw').focus()">Clear</button>
+      </div>
+      <div id="err" class="err">❌ Incorrect password. Try again.</div>
+      <div class="logo-hint" style="margin-top:10px;">
+        Have a logo? Put <code>Shark-T.png</code> next to this HTML file to show it in the header.
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <header id="appHeader" class="hidden">
+    <div class="head-wrap">
+      <div class="brand">
+        <img id="apexLogo" src="Shark-T.png" alt="Apex Logo" onerror="this.style.display='none'"/>
+        <div>
+          <div class="brand-title">Apex Seller Conversation Trainer</div>
+          <div style="font-size:.85rem;color:var(--faded);margin-top:2px;">Exclusive Access • Apex Academy</div>
+        </div>
+      </div>
+      <div class="tag">RJ Bates–Inspired • Apex Method</div>
+    </div>
+  </header>
+
+  <main class="container hidden" id="app">
+    <div class="grid">
+      <section class="card">
+        <div class="title">Live Conversation</div>
+        <div class="sub">Choose your responses. Build trust, uncover MCTP (Motivation, Condition, Timeline, Price), and earn an Apex score.</div>
+        <div id="feed" class="conv" aria-live="polite"></div>
+        <div id="choiceWrap" class="choices"></div>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="hint()" id="hintBtn">💡 Hint (–10 pts)</button>
+          <button class="btn btn-ghost" onclick="restart()">🔁 New Scenario</button>
+          <span class="pill">Turns: <strong id="turn">0</strong>/5</span>
+          <span class="pill">Good choices used: <strong id="goodCount">0</strong></span>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="title">Deal Readiness</div>
+        <div class="stats" style="margin-bottom:12px">
+          <div class="stat">
+            <label>Trust</label>
+            <div class="trust-bar"><div id="trustFill" class="trust-fill"></div></div>
+            <div class="v" id="trustVal">0 / 10</div>
+          </div>
+          <div class="stat">
+            <label>M • Motivation</label>
+            <div class="v" id="mVal">❌</div>
+          </div>
+          <div class="stat">
+            <label>C • Condition</label>
+            <div class="v" id="cVal">❌</div>
+          </div>
+          <div class="stat">
+            <label>T • Timeline</label>
+            <div class="v" id="tVal">❌</div>
+          </div>
+          <div class="stat">
+            <label>P • Price</label>
+            <div class="v" id="pVal">❌</div>
+          </div>
+          <div class="stat">
+            <label>Score</label>
+            <div class="v" id="score">0 / 100</div>
+          </div>
+        </div>
+        <div class="title" style="margin-top:8px">Persona</div>
+        <div id="persona" class="sub">—</div>
+        <div class="title" style="margin-top:12px">Apex Coaching</div>
+        <div id="coach" class="sub">Keep your tone calm, curious, and confident. Guide, don’t pressure.</div>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top:16px">
+      <div class="title">Session Summary</div>
+      <div class="sub" id="summary">Complete 5 turns to see the breakdown and coaching notes.</div>
+    </section>
+  </main>
+
+  <footer id="foot" class="hidden">
+    <div class="container">© 2025 Apex Academy • Train harder, close smarter. 🦈</div>
+  </footer>
+
+  <script>
+    // ===== CONFIG =====
+    const PASSWORD = "ApexAnalyzer2025";
+
+    const personas = [
+      { id:"skeptical", name:"Skeptical Seller", blurb:"Cautious and proof-driven. Needs credibility and logic.", baseTrust:3 },
+      { id:"emotional", name:"Emotional Seller", blurb:"Attached to the home. Responds to empathy and patience.", baseTrust:5 },
+      { id:"rushed", name:"Rushed Seller", blurb:"Time-sensitive. Values clarity and speed over fluff.", baseTrust:4 },
+      { id:"motivated", name:"Motivated Seller", blurb:"Flexible on terms. Pragmatic and outcome-focused.", baseTrust:6 },
+      { id:"analytical", name:"Analytical Seller", blurb:"Data-first mindset. Wants comps, logic, and structure.", baseTrust:4 }
+    ];
+
+    // Dialogue pools (each choice has text, trust impact, and optional reveal: 'M'|'C'|'T'|'P')
+    const pool = {
+      opening: [
+        { t:"Good morning — thanks for your time. I work with homeowners in situations like yours.", trust:+2 },
+        { t:"Hi, I’m a local buyer. I’d love to understand your goals before we talk numbers.", trust:+2 },
+        { t:"What's your bottom line?", trust:-2 },
+        { t:"Tell me what's wrong with the house so I can make a quick offer.", trust:-3 }
+      ],
+      motivation: [
+        { t:"Transitions can be tricky. What’s prompting the sale right now?", trust:+2, r:"M" },
+        { t:"Help me understand your situation so we can structure the best solution.", trust:+1, r:"M" },
+        { t:"Are you serious about selling or just testing the market?", trust:-2 }
+      ],
+      condition: [
+        { t:"Walk me through the condition — what’s working well and what needs attention?", trust:+1, r:"C" },
+        { t:"Any major repairs or updates in the last 5–10 years?", trust:+1, r:"C" },
+        { t:"Just tell me what's broken so I can discount it.", trust:-2 }
+      ],
+      timeline: [
+        { t:"What’s your ideal timeline for closing so we can plan around it?", trust:+2, r:"T" },
+        { t:"Is there any flexibility on your move-out if we help with terms?", trust:+1, r:"T" },
+        { t:"I close in 7 days cash — that works for you, right?", trust:-1 }
+      ],
+      price: [
+        { t:"Have you had a number in mind or a range you’d be comfortable with?", trust:+1, r:"P" },
+        { t:"Based on condition and comps, I’ll share a fair range — how does that sound?", trust:+1, r:"P" },
+        { t:"What's your absolute rock-bottom?", trust:-2 }
+      ],
+      pushback: [
+        { t:"I hear you. Let’s find a middle ground that works for both of us.", trust:+2 },
+        { t:"That’s my offer. Take it or leave it.", trust:-3 },
+        { t:"What part of the offer feels off to you?", trust:+1 }
+      ],
+      objection: [
+        { t:"You’re right to have concerns — let’s address them one by one.", trust:+2 },
+        { t:"Let me walk you through how I arrived at that number.", trust:+1 },
+        { t:"You won't get better than this anywhere else.", trust:-2 }
+      ],
+      closing: [
+        { t:"I want this to be a win–win. Are you comfortable moving forward on these terms?", trust:+2 },
+        { t:"I’ve gone as far as I can — what would help you say yes today?", trust:+1 },
+        { t:"Final offer. Yes or no?", trust:-2 }
+      ]
+    };
+
+    // ===== STATE =====
+    let state = {};
+    function newState(){
+      const persona = personas[Math.floor(Math.random()*personas.length)];
+      return {
+        turn:0,
+        trust: persona.baseTrust,
+        maxTrust:10,
+        score:0,
+        found:{ M:false, C:false, T:false, P:false },
+        goodChoices:0,
+        persona,
+        history:[],
+        usedHint:false
+      };
+    }
+
+    // ===== DOM =====
+    const gate = document.getElementById('gate');
+    const err = document.getElementById('err');
+    const feed = document.getElementById('feed');
+    const choiceWrap = document.getElementById('choiceWrap');
+    const trustFill = document.getElementById('trustFill');
+    const trustVal = document.getElementById('trustVal');
+    const mVal = document.getElementById('mVal');
+    const cVal = document.getElementById('cVal');
+    const tVal = document.getElementById('tVal');
+    const pVal = document.getElementById('pVal');
+    const scoreEl = document.getElementById('score');
+    const personaEl = document.getElementById('persona');
+    const coach = document.getElementById('coach');
+    const summary = document.getElementById('summary');
+    const turnEl = document.getElementById('turn');
+    const goodCountEl = document.getElementById('goodCount');
+    const app = document.getElementById('app');
+    const appHeader = document.getElementById('appHeader');
+    const foot = document.getElementById('foot');
+
+    // ===== PASSWORD =====
+    function unlock(){
+      const val = (document.getElementById('pw').value || "").trim();
+      if(val === PASSWORD){
+        gate.classList.add('hidden');
+        app.classList.remove('hidden');
+        appHeader.classList.remove('hidden');
+        foot.classList.remove('hidden');
+        restart();
+      }else{
+        err.style.display='block';
+        setTimeout(()=>{err.style.display='none'},1600);
+      }
+    }
+
+    // ===== FLOW =====
+    function restart(){
+      state = newState();
+      feed.innerHTML='';
+      choiceWrap.innerHTML='';
+      summary.textContent = "Complete 5 turns to see the breakdown and coaching notes.";
+      personaEl.textContent = state.persona.name + " — " + state.persona.blurb;
+      coach.textContent = "Keep your tone calm, curious, and confident. Guide, don’t pressure.";
+      updateHUD();
+      pushSeller("Hi, thanks for reaching out. What can you tell me?");
+      nextTurn(true);
+    }
+
+    function nextTurn(isOpening=false){
+      state.turn++;
+      turnEl.textContent = state.turn;
+      choiceWrap.innerHTML='';
+
+      let categories;
+      if(isOpening){
+        categories = ['opening'];
+      }else if(state.turn <= 3){
+        categories = ['motivation','condition','timeline','price'];
+      }else{
+        categories = ['pushback','objection','closing'];
+      }
+
+      const cat = categories[Math.floor(Math.random()*categories.length)];
+      const options = shuffle(pool[cat]).slice(0,3);
+
+      options.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'choice';
+        div.innerHTML = opt.t;
+        div.onclick = ()=> choose(opt, cat);
+        choiceWrap.appendChild(div);
+      });
+    }
+
+    function choose(opt, cat){
+      // Apply trust and discovery
+      const prevTrust = state.trust;
+      state.trust = clamp(state.trust + (opt.trust||0), 0, state.maxTrust);
+
+      // "Good" choice heuristic: positive trust + reveals info
+      const good = (opt.trust||0) > 0 || !!opt.r;
+      if(good) state.goodChoices++;
+
+      // Reveal MCTP
+      if(opt.r){ state.found[opt.r] = true; }
+
+      // Echo dialogue
+      pushYou(opt.t);
+      setTimeout(()=>{
+        pushSeller(sellerReply(cat, opt, prevTrust));
+      },200);
+
+      // Scoring per turn
+      let turnScore = 0;
+      if(opt.trust>0) turnScore += 8;
+      if(opt.r) turnScore += 8;
+      if(opt.trust<0) turnScore -= 6;
+      state.score = clamp(state.score + turnScore, 0, 100);
+
+      updateHUD();
+
+      // End or continue
+      if(state.turn >= 5){
+        endSession();
+      }else{
+        setTimeout(()=>nextTurn(false), 320);
+      }
+    }
+
+    function endSession(){
+      choiceWrap.innerHTML='';
+      // Hint penalty
+      if(state.usedHint) state.score = clamp(state.score - 10, 0, 100);
+
+      // MCTP bonus
+      const mctpCount = Object.values(state.found).filter(Boolean).length;
+      state.score = clamp(state.score + mctpCount*5, 0, 100);
+
+      // Trust bonus
+      if(state.trust >= 7) state.score = clamp(state.score + 10, 0, 100);
+
+      updateHUD();
+
+      const status = (mctpCount>=3 && state.trust>=3) ? "✅ Deal-ready conversation." : "⚠️ Missing elements before making an offer.";
+      const notes = [
+        mctpCount<3 ? "Increase discovery — aim for at least 3 of M/C/T/P." : "Great discovery — you hit the key motivators.",
+        state.trust<3 ? "Build more trust using empathy and clarity." : "Trust level is solid — now transition to terms."
+      ];
+
+      summary.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr;gap:8px">
+          <div><strong>Status:</strong> ${status}</div>
+          <div><strong>MCTP Found:</strong> ${mctpCount}/4 —
+            <span>${state.found.M?'M':'—'}</span> •
+            <span>${state.found.C?'C':'—'}</span> •
+            <span>${state.found.T?'T':'—'}</span> •
+            <span>${state.found.P?'P':'—'}</span>
+          </div>
+          <div><strong>Trust:</strong> ${state.trust}/10</div>
+          <div><strong>Good choices used:</strong> ${state.goodChoices}</div>
+          <div style="margin-top:6px"><strong>Apex Coaching:</strong> ${notes.join(' ')} Keep control, keep it kind, and lead the seller to clarity.</div>
+        </div>
+      `;
+    }
+
+    // ===== UI HELPERS =====
+    function updateHUD(){
+      trustFill.style.width = (state.trust/state.maxTrust*100).toFixed(0)+'%';
+      trustVal.textContent = state.trust + " / " + state.maxTrust;
+      mVal.textContent = state.found.M ? "✅" : "❌";
+      cVal.textContent = state.found.C ? "✅" : "❌";
+      tVal.textContent = state.found.T ? "✅" : "❌";
+      pVal.textContent = state.found.P ? "✅" : "❌";
+      goodCountEl.textContent = state.goodChoices;
+      scoreEl.textContent = state.score + " / 100";
+    }
+
+    function hint(){
+      if(state.usedHint) return;
+      state.usedHint = true;
+      // Mark the "best" choice (highest trust + reveal)
+      const nodes = Array.from(choiceWrap.children);
+      let bestIdx = 0, bestScore = -999;
+      nodes.forEach((node, i)=>{
+        const text = node.textContent.trim();
+        const match = findInPools(text);
+        const score = (match?.trust||0) + (match?.r ? 1.5 : 0);
+        if(score > bestScore){ bestScore = score; bestIdx = i; }
+      });
+      if(nodes[bestIdx]) nodes[bestIdx].classList.add('hint');
+    }
+
+    function findInPools(text){
+      const keys = Object.keys(pool);
+      for(const k of keys){
+        const f = pool[k].find(x=>x.t===text);
+        if(f) return f;
+      }
+      return null;
+    }
+
+    function pushYou(t){
+      state.history.push({ who:'you', t });
+      const row = document.createElement('div'); row.className='row';
+      row.innerHTML = `<div class="bubble you">🗣️ <strong>You:</strong> ${escapeHTML(t)}</div>`;
+      feed.appendChild(row); feed.scrollTop = feed.scrollHeight;
+    }
+    function pushSeller(t){
+      state.history.push({ who:'seller', t });
+      const row = document.createElement('div'); row.className='row';
+      row.innerHTML = `<div class="bubble seller">🏠 <strong>Seller:</strong> ${escapeHTML(t)}</div>`;
+      feed.appendChild(row); feed.scrollTop = feed.scrollHeight;
+    }
+
+    function sellerReply(cat, opt, prevTrust){
+      const delta = (opt.trust||0);
+      if(cat==='opening'){
+        if(delta>0) return "Thanks for being professional. I’m open to talking.";
+        if(delta<0) return "That’s a bit aggressive…";
+        return "Okay. What do you need from me?";
+      }
+      if(cat==='motivation'){
+        if(opt.r==='M') return rand([
+          "We’re relocating for work and need to move soon.",
+          "I inherited this place and it’s a lot to manage.",
+          "Just tired of the maintenance — it’s time."
+        ]);
+        if(delta<0) return "Why the attitude?";
+        return "Not sure that matters yet.";
+      }
+      if(cat==='condition'){
+        if(opt.r==='C') return rand([
+          "Roof is older and HVAC is near end-of-life.",
+          "Mostly cosmetics — paint, floors, dated kitchen.",
+          "Some plumbing issues and cracks in the slab."
+        ]);
+        if(delta<0) return "That’s not the best way to ask.";
+        return "You can inspect it if we move forward.";
+      }
+      if(cat==='timeline'){
+        if(opt.r==='T') return rand([
+          "Ideally 30 days.",
+          "As soon as possible — already moved out.",
+          "No rush, but within 60 days would be great."
+        ]);
+        if(delta<0) return "You seem in a hurry — I’m not sure.";
+        return "Depends on the offer.";
+      }
+      if(cat==='price'){
+        if(opt.r==='P') return rand([
+          "I was thinking somewhere around the low 200s.",
+          "I’d like to be near what similar homes sold for.",
+          "I have a range but I want to hear your number first."
+        ]);
+        if(delta<0) return "I’m not giving a bottom line.";
+        return "Maybe — if everything else makes sense.";
+      }
+      if(cat==='pushback'){
+        if(delta>0) return "Okay, I appreciate you working with me.";
+        if(delta<0) return "That tone isn’t helping.";
+        return "Alright — I’m listening.";
+      }
+      if(cat==='objection'){
+        if(delta>0) return "That helps — walk me through your logic.";
+        if(delta<0) return "I don’t buy that.";
+        return "Okay… show me your comps.";
+      }
+      if(cat==='closing'){
+        if(delta>0) return "This feels fair. I’m leaning yes.";
+        if(delta<0) return "I need time. Don’t push.";
+        return "Let me think on it.";
+      }
+      return "Okay.";
+    }
+
+    // ===== UTIL =====
+    function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+    function rand(a){return a[Math.floor(Math.random()*a.length)];}
+    function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+    function escapeHTML(s){return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+    // Expose some funcs (optional)
+    window.unlock = unlock;
+    window.restart = restart;
+    window.hint = hint;
+  </script>
+</body>
+</html>
