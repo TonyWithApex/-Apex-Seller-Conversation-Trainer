@@ -1,518 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Apex Seller Conversation Trainer — Apex Method Edition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f0f10;
-    --panel:#161617;
-    --bubble-left:#2a2a2c;
-    --bubble-right:#f0e6cf;
-    --right-text:#0f0f10;
-    --muted:#9aa0a6;
-    --gold1:#7c6338; --gold2:#ad9051;
-    --accent:linear-gradient(90deg,var(--gold1),var(--gold2));
-    --ok:#22c55e; --bad:#ef4444; --mid:#eab308;
+    --bg:#0d0d0f; --panel:#141417; --ink:#e9e9ee; --muted:#a7a7b3;
+    --gold1:#ad9051; --gold2:#7c6338; --good:#34d399; --warn:#f59e0b; --bad:#ef4444;
+    --bubble-blue:#0b93f6; --bubble-gray:#e5e5ea; --ink-dark:#111; --ink-blue:#fff;
+    --chip:#1e1e24; --line:#26262b;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 80% -100%, #2a2314 0%, #0f0f10 50%, #0b0b0c 100%);color:#e9eaee;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  .wrap{max-width:1100px;margin:0 auto;padding:20px}
-  .header{
-    display:flex;align-items:center;gap:14px;background:rgba(22,22,23,.7);
-    border:1px solid #262628;border-radius:16px;padding:10px 14px;backdrop-filter:blur(8px)
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  header{
+    background:linear-gradient(90deg,rgba(173,144,81,.15),rgba(124,99,56,.05));
+    border:1px solid var(--line);
+    padding:14px 16px;border-radius:14px;display:flex;align-items:center;gap:12px
   }
-  .logo{width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid #2b2b2d;box-shadow:0 0 0 3px rgba(173,144,81,.08)}
-  .titles{display:flex;flex-direction:column}
-  .title{
-    font-weight:800;font-size:16px;
-    background:var(--accent);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.2px
-  }
-  .subtitle{font-size:12px;color:var(--muted)}
-  .gate{
-    position:fixed;inset:0;background:
-      radial-gradient(1200px 600px at 80% -100%, rgba(173,144,81,.08) 0%, rgba(0,0,0,.9) 50%),
-      #000;
-    display:flex;align-items:center;justify-content:center;z-index:50
-  }
-  .gate-card{
-    width:min(560px,92vw);background:var(--panel);border:1px solid #2a2a2c;border-radius:16px;padding:28px;box-shadow:0 15px 80px rgba(0,0,0,.6)
-  }
-  .gate-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-  .gate-title{font-weight:800}
-  .badge{font-size:11px;color:#111;background:var(--accent);padding:4px 8px;border-radius:999px;font-weight:700;margin-left:auto}
-  .gate-desc{color:var(--muted);font-size:13px;margin-bottom:16px}
-  .gate-row{display:flex;gap:10px}
-  .inpt{
-    flex:1;padding:12px 14px;border-radius:10px;border:1px solid #2a2a2c;background:#121214;color:#e9eaee;font-size:14px;outline:none
-  }
-  .btn{
-    padding:12px 16px;border-radius:10px;border:0;font-weight:800;cursor:pointer;
-    background:var(--accent);color:#111;transition:transform .06s ease,opacity .2s ease
-  }
-  .btn:active{transform:translateY(1px)}
-  .err{color:var(--bad);font-size:12px;margin-top:8px;display:none}
-
-  .hud{
-    display:flex;gap:10px;margin:14px 0 20px 0;flex-wrap:wrap
-  }
-  .chip{
-    background:#131315;border:1px solid #242426;padding:8px 12px;border-radius:999px;
-    font-size:12px;color:#c7c9ce;display:flex;align-items:center;gap:8px
-  }
-  .bar{position:relative;width:220px;height:10px;background:#1c1c1f;border-radius:999px;overflow:hidden;border:1px solid #2a2a2c}
-  .fill{position:absolute;inset:0;width:40%;background:var(--accent)}
-  .mctp{display:flex;gap:8px}
-  .dot{width:10px;height:10px;border-radius:50%;background:#3a3a3d;border:1px solid #2a2a2c}
-  .dot.on{background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-  .screen{
-    border:1px solid #242426;border-radius:18px;background:#111214;
-    display:grid;grid-template-columns:320px 1fr;min-height:70vh;overflow:hidden
-  }
-  .left{
-    border-right:1px solid #242426;padding:18px;background:#0f0f10
-  }
-  .card{
-    background:#151517;border:1px solid #28282a;border-radius:14px;padding:14px;margin-bottom:12px
-  }
-  .card h3{margin:0 0 6px 0;font-size:13px;color:#cfd1d5}
-  .card p{margin:0;color:#9aa0a6;font-size:12px;line-height:1.5}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-  .pill{
-    background:#1a1a1e;border:1px solid #2b2b2d;border-radius:10px;padding:8px 10px;font-size:12px;color:#cfd1d5
-  }
-
-  .chat{
-    background:linear-gradient(180deg,#0f0f10 0%,#0b0b0c 100%);
-    padding:18px;display:flex;flex-direction:column;gap:10px
-  }
-  .row{display:flex;gap:10px;align-items:flex-end}
+  header img.logo{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(173,144,81,.25))}
+  header .title{font-weight:800;letter-spacing:.2px}
+  header .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .hud{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .chip{background:var(--chip);border:1px solid var(--line);padding:10px 12px;border-radius:999px;display:flex;align-items:center;gap:8px}
+  .pill{padding:3px 8px;border-radius:999px;font-weight:700}
+  .pill.good{background:rgba(52,211,153,.15);color:var(--good)}
+  .pill.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+  .pill.bad{background:rgba(239,68,68,.15);color:var(--bad)}
+  .board{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .chat{height:56vh;min-height:420px;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;gap:8px}
   .row.seller{justify-content:flex-start}
-  .row.user{justify-content:flex-end}
-  .bubble{
-    max-width:min(80%,690px);padding:12px 14px;border-radius:18px;font-size:14px;line-height:1.45;
-    border:1px solid transparent;position:relative
-  }
-  .seller .bubble{
-    background:var(--bubble-left);border-color:#333;color:#eaecef;border-bottom-left-radius:6px
-  }
-  .user .bubble{
-    background:var(--bubble-right);color:var(--right-text);
-    background-image:var(--accent);color:#0b0b0c;font-weight:600;border:0;border-bottom-right-radius:6px
-  }
-  .mini{font-size:11px;color:var(--muted);margin:2px 6px}
-  .choices{position:sticky;bottom:0;display:grid;gap:8px;margin-top:8px;background:linear-gradient(180deg,rgba(15,15,16,0) 0%, #0f0f10 35%, #0f0f10 100%);padding-top:8px}
-  .choice{
-    text-align:left;background:#151517;border:1px solid #2a2a2c;color:#e9eaee;padding:10px 12px;border-radius:12px;
-    cursor:pointer;transition:all .08s ease;font-size:14px
-  }
-  .choice:hover{transform:translateY(-1px);border-color:#3a3a3d}
-  .choice.good{border-color:rgba(34,197,94,.6);box-shadow:0 0 0 3px rgba(34,197,94,.15) inset}
-  .choice.bad{border-color:rgba(239,68,68,.6);box-shadow:0 0 0 3px rgba(239,68,68,.12) inset}
-  .toast{
-    position:fixed;left:50%;top:18px;transform:translateX(-50%);
-    background:#121214;border:1px solid #2b2b2d;padding:10px 14px;border-radius:10px;font-size:13px;z-index:30;display:none
-  }
-  .summary{display:none}
-  .summary .card{background:#131315}
-  .hidden{display:none}
-  .sep{height:1px;background:#222;margin:10px 0}
+  .row.me{justify-content:flex-end}
+  .bubble{max-width:72%;padding:10px 12px;border-radius:18px;word-wrap:break-word;white-space:pre-wrap}
+  .seller .bubble{background:var(--bubble-gray);color:var(--ink-dark);border-bottom-left-radius:6px}
+  .me .bubble{background:var(--bubble-blue);color:var(--ink-blue);border-bottom-right-radius:6px}
+  .name{font-size:11px;color:var(--muted);margin:0 4px 4px}
+  .footer{border-top:1px solid var(--line);padding:12px;display:grid;gap:10px}
+  .opts{display:grid;gap:8px}
+  .opt{background:#1a1a21;border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer}
+  .opt:hover{border-color:var(--gold1);box-shadow:0 0 0 2px rgba(173,144,81,.15) inset}
+  .opt small{display:block;color:var(--muted);margin-top:6px}
+  .bar{display:flex;align-items:center;gap:10px;justify-content:space-between}
+  .bar .left{display:flex;align-items:center;gap:8px}
+  .mctp{display:flex;gap:6px;flex-wrap:wrap}
+  .mctp .tag{background:#101014;border:1px solid var(--line);padding:6px 8px;border-radius:10px;font-size:12px;color:var(--muted)}
+  .mctp .tag.done{border-color:var(--good);color:var(--good);background:rgba(52,211,153,.1)}
+  .btn{background:linear-gradient(90deg,var(--gold2),var(--gold1));color:#0d0d0f;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
   .muted{color:var(--muted)}
+  .sep{height:8px}
+  .feedback{font-size:12px;color:var(--muted);padding:0 4px}
+  .summary{padding:16px}
+  .summary h3{margin:0 0 8px}
+  .hr{height:1px;background:var(--line);margin:12px 0}
+  /* Password modal */
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:50
+  }
+  .modal .card{
+    width:min(560px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px
+  }
+  .field{display:flex;gap:8px;margin-top:10px}
+  input[type="password"]{flex:1;background:#101014;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--ink)}
+  .note{font-size:12px;color:var(--muted);margin-top:6px}
+  .brandLock{display:flex;align-items:center;gap:10px}
+  .brandLock img{width:38px;height:38px;object-fit:contain}
+  .badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#101014;color:var(--muted)}
+  .right{display:flex;align-items:center;gap:8px}
+  .hidden{display:none}
 </style>
 </head>
 <body>
-  <div class="gate" id="gate">
-    <div class="gate-card">
-      <div class="gate-head">
-        <img src="shark-t.png" alt="Apex" class="logo" />
-        <div>
-          <div class="gate-title">Apex Seller Conversation Trainer — Apex Method Edition</div>
-          <div class="gate-desc">Exclusive access • Enter password to begin the training chat.</div>
+<div class="wrap">
+  <header>
+    <img class="logo" src="shark-T.png" alt="Apex" />
+    <div>
+      <div class="title">Apex Seller Conversation Trainer — Apex Method Edition</div>
+      <div class="sub">Practice buyer-seller conversations using Safety, Moral Duty, Conviction, and No-Harm — with MCTP discipline.</div>
+    </div>
+  </header>
+
+  <div class="hud">
+    <div class="chip">Trust: <span id="trustLabel" class="pill good">5 / 10</span></div>
+    <div class="chip">Persona: <strong id="personaLabel">—</strong></div>
+    <div class="chip">Tone: <strong id="toneLabel">—</strong></div>
+    <div class="chip">Round: <strong id="roundLabel">0/8</strong></div>
+  </div>
+
+  <div class="board">
+    <div id="chat" class="chat" aria-live="polite"></div>
+
+    <div class="footer">
+      <div class="bar">
+        <div class="left">
+          <strong>Choose your reply</strong>
+          <span id="coachHint" class="badge">Coach hints on</span>
         </div>
-        <div class="badge">EXCLUSIVE ACCESS</div>
+        <div class="mctp">
+          <div id="tagM" class="tag">M</div>
+          <div id="tagC" class="tag">C</div>
+          <div id="tagT" class="tag">T</div>
+          <div id="tagP" class="tag">P</div>
+        </div>
       </div>
-      <div class="sep"></div>
-      <p class="gate-desc">This trainer simulates real seller texting. Your job: keep <b>Trust</b> high, collect <b>MCTP</b> (Motivation, Condition, Timeline, Price), and respond using the <b>Apex Method</b> (safety first, no pressure, clarity, integrity).</p>
-      <div class="gate-row">
-        <input id="pw" class="inpt" placeholder="Password" autocomplete="current-password">
-        <button class="btn" id="enterBtn">Enter</button>
+      <div id="options" class="opts"></div>
+      <div id="feedback" class="feedback"></div>
+      <div class="bar">
+        <div class="left muted">Apex Method: Create Safety • Moral Duty • Internal Conviction • Avoid Harm</div>
+        <div class="right">
+          <button id="nextBtn" class="btn" disabled>Next</button>
+          <button id="restartBtn" class="btn" style="display:none">New Scenario</button>
+        </div>
       </div>
-      <div class="err" id="pwErr">Incorrect password.</div>
-      <div class="muted" style="margin-top:10px;font-size:12px">Hint: Provided by instructor.</div>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="header">
-      <img src="shark-t.png" alt="Apex" class="logo"/>
-      <div class="titles">
-        <div class="title">Apex Seller Conversation Trainer — Apex Method Edition</div>
-        <div class="subtitle">Live practice • iMessage-style • MCTP guided</div>
+  <div id="summary" class="summary hidden"></div>
+</div>
+
+<!-- Password Gate -->
+<div id="gate" class="modal">
+  <div class="card">
+    <div class="brandLock">
+      <img src="shark-T.png" alt="Apex" />
+      <div>
+        <div class="title">Exclusive access</div>
+        <div class="sub">Apex Academy students only</div>
       </div>
     </div>
-
-    <div class="hud">
-      <div class="chip"><strong>Trust</strong>
-        <div class="bar"><div id="trustFill" class="fill" style="width:60%"></div></div>
-        <span id="trustVal">60</span>
-      </div>
-      <div class="chip"><strong>Persona:</strong> <span id="personaName">—</span></div>
-      <div class="chip"><strong>Stage:</strong> <span id="stageName">Intro</span></div>
-      <div class="chip">
-        <strong>MCTP</strong>
-        <div class="mctp" style="margin-left:8px">
-          <div id="dotM" class="dot" title="Motivation"></div>
-          <div id="dotC" class="dot" title="Condition"></div>
-          <div id="dotT" class="dot" title="Timeline"></div>
-          <div id="dotP" class="dot" title="Price"></div>
-        </div>
-      </div>
+    <div class="field">
+      <input id="pw" type="password" placeholder="Enter password" />
+      <button id="unlock" class="btn">Unlock</button>
     </div>
-
-    <div class="screen">
-      <aside class="left">
-        <div class="card">
-          <h3>Apex Method—Quick Reminders</h3>
-          <div class="grid2">
-            <div class="pill">🛡️ Create Safety</div>
-            <div class="pill">🎯 Moral Duty</div>
-            <div class="pill">💬 Conviction via Questions</div>
-            <div class="pill">❌ Avoid Harm / Pressure</div>
-          </div>
-          <p style="margin-top:10px">Use permission-based language, set expectations early, handle objections with empathy, and guide with clarity. Your goal is a <b>safe yes</b> or a <b>confident no</b>.</p>
-        </div>
-        <div class="card">
-          <h3>Seller Types (randomized)</h3>
-          <p id="personaDesc" class="muted">—</p>
-        </div>
-        <div class="card">
-          <h3>Win Condition</h3>
-          <p>End with Trust ≥ 65 and at least 3/4 MCTP captured.</p>
-        </div>
-      </aside>
-
-      <main class="chat">
-        <div id="thread"></div>
-        <div id="choices" class="choices"></div>
-
-        <section class="summary" id="summary">
-          <div class="card">
-            <h3>Session Summary</h3>
-            <p id="sumLine"></p>
-          </div>
-          <div class="card" id="sumMCTP"></div>
-          <div class="card">
-            <button class="btn" id="restartBtn">Restart</button>
-          </div>
-        </section>
-      </main>
-    </div>
+    <div class="note">Password is provided in your student portal. Need help? Contact your instructor.</div>
   </div>
-
-  <div class="toast" id="toast"></div>
+</div>
 
 <script>
-/* ========= Password Gate ========= */
-const PASS = "SellerConvo2025";
-const gate = document.getElementById('gate');
-const pwIn = document.getElementById('pw');
-const pwErr = document.getElementById('pwErr');
-document.getElementById('enterBtn').onclick = () => {
-  if (pwIn.value.trim() === PASS) {
-    gate.style.display = 'none';
-    startGame();
-  } else { pwErr.style.display='block'; setTimeout(()=>pwErr.style.display='none',1800); }
-};
-pwIn.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('enterBtn').click(); });
-
-/* ========= State ========= */
+/* ------------------------------------------------------------
+   Scenario Engine (v6 Teaching Edition)
+   ------------------------------------------------------------ */
 const state = {
-  trust: 60,
+  trust: 5, maxTrust: 10,
+  round: 0, maxRounds: 8,
   mctp: {M:false,C:false,T:false,P:false},
-  stageIndex: 0,
-  persona: null,
-  lockInput: true,
-  ended:false,
+  persona:null, tone:null,
+  coach:true,
+  history: [],
+  ended:false
 };
 
-const personas = [
-  { id:'skeptical', name:'Skeptical', desc:'Cautious; needs credibility + permission.', trustStart:55 },
-  { id:'emotional', name:'Emotional', desc:'Attached; needs empathy & safety.', trustStart:60 },
-  { id:'rushed', name:'Rushed', desc:'Time-sensitive; values speed & clarity.', trustStart:58 },
-  { id:'analytical', name:'Analytical', desc:'Data-driven; wants numbers & logic.', trustStart:62 },
-  { id:'motivated', name:'Motivated', desc:'Ready if path feels safe & fair.', trustStart:65 },
+// Personas (DISC-like mapping)
+const PERSONAS = [
+  { id:'blue',  name:'Blue (Relationship)',  style:'Build rapport first; safety > speed',  tones:['warm','curious','guarded'] },
+  { id:'yellow',name:'Yellow (Community)',    style:'Family/community impact; harmony',   tones:['optimistic','thoughtful','cautious'] },
+  { id:'red',   name:'Red (Decisive)',        style:'Control, clarity, options fast',     tones:['direct','rushed','skeptical'] },
+  { id:'green', name:'Green (Analytical)',    style:'Facts, comps, clarity, proofs',      tones:['measured','questioning','systematic'] },
+  { id:'neutral',name:'Neutral Blend',        style:'Balanced; mirror and match',         tones:['neutral','open','unsure'] }
 ];
 
-const stages = [
-  // 0 INTRO / SAFETY
-  {
-    name:'Intro',
-    seller:[
-      "Hey—who is this? I’ve had a lot of random buyers texting.",
-      "Hi. Not sure I want to deal with investors right now.",
-      "Okay… you buy houses? What’s the catch?"
-    ],
-    choices:(p)=>[
-      ok("Totally fair. You’re 100% free to say no if this isn’t a fit. My job is to be upfront and help only if we’re right for you.", +8, 'safety'),
-      meh("I’m legit, we close fast. Can we talk numbers?", -6),
-      bad("No catch. If you want an offer, you’ll need to cooperate.", -12)
-    ]
-  },
-  // 1 EXPECTATIONS
-  {
-    name:'Expectations',
-    seller:[
-      "Alright. If you’re cash, is your price going to be low?",
-      "So what’s different about you vs listing with an agent?"
-    ],
-    choices:(p)=>[
-      ok("Good q. Cash is lower than list price because you skip repairs, showings, and delays. It’s about ease and certainty. If that tradeoff doesn’t help you, I’ll tell you upfront.", +7, 'anchor'),
-      meh("Depends on the house. I need a discount obviously.", -6),
-      bad("If you want top dollar, list it. I’m not paying that.", -12)
-    ]
-  },
-  // 2 OBJECTION (dynamic)
-  {
-    name:'Objection',
-    seller:[
-      "I need to think about it.",
-      "Another buyer said they might pay more.",
-      "I don’t want to be pressured into something I’ll regret."
-    ],
-    choices:(p)=>[
-      ok("Totally reasonable. Most sellers feel that way. You’re always free to pass. Want me to lay out both paths—cash vs list—so you can decide calmly?", +8, 'objection'),
-      meh("If you wait too long the deal could be gone.", -8),
-      bad("No need to think—this is your best shot.", -14)
-    ]
-  },
-  // 3 M—Motivation
-  {
-    name:'Motivation',
-    seller:[
-      "Well… I’m just considering options right now.",
-      "We might sell, just not sure if it’s worth the hassle."
-    ],
-    choices:(p)=>[
-      ok("What’s most important for you—speed, price, or making this as easy as possible?", +6, 'M'),
-      ok("When did selling first come up? What changed recently?", +6, 'M'),
-      meh("So do you actually want to sell or not?", -8)
-    ]
-  },
-  // 4 C—Condition
-  {
-    name:'Condition',
-    seller:[
-      "The house is okay. Needs some things.",
-      "There are a few repairs I don’t want to deal with."
-    ],
-    choices:(p)=>[
-      ok("Got it. Any major items like roof, HVAC, or foundation we should factor in, so you’re not surprised later?", +5, 'C'),
-      ok("If you did nothing, what would a buyer need to fix in the first 6 months?", +5, 'C'),
-      meh("Just send me a list of everything broken.", -7)
-    ]
-  },
-  // 5 T—Timeline
-  {
-    name:'Timeline',
-    seller:[
-      "Timing depends on where I’m moving.",
-      "Soon would be nice, but I’m flexible."
-    ],
-    choices:(p)=>[
-      ok("What’s your ideal target—are you thinking weeks or months? I’ll match the plan to your pace.", +5, 'T'),
-      ok("Is there a date you’d love to be done by, even if it’s not firm yet?", +5, 'T'),
-      meh("We close in 7 days. That work?", -6)
-    ]
-  },
-  // 6 P—Price
-  {
-    name:'Price',
-    seller:[
-      "I mean… I’d love to get top dollar like the neighbors.",
-      "What range are we talking about here?"
-    ],
-    choices:(p)=>[
-      ok("Just to set expectations, investors in the area have paid in a certain range depending on condition. After I see your details, I’ll show a transparent breakdown so you stay in control.", +6, 'P'),
-      meh("Give me your rock-bottom number.", -8),
-      bad("If you want retail, I’m out.", -12)
-    ]
-  },
-  // 7 CLOSE
-  {
-    name:'Next Steps',
-    seller:[
-      "Okay… so what’s the next step?",
-      "If we explored this, what would it look like?"
-    ],
-    choices:(p)=>[
-      ok("Zero-pressure path: I’ll send a clear side-by-side (cash vs list) and a draft offer you can review. If it helps, we book a quick walkthrough—still your call.", +7, 'close'),
-      meh("Let’s sign today and I’ll figure the rest.", -10),
-      bad("You ready to commit or not?", -14)
-    ]
+// Flow steps (kept coherent)
+const STEPS = [
+  'catch','compare','objection','motivation','condition','timeline','price','close'
+];
+
+// Seller utterances per step (randomized pools, coherent phrasing).
+const SELLER = {
+  catch: [
+    "Okay… you buy houses? What’s the catch?",
+    "So you’re an investor—how does this really work?",
+    "You’re not going to waste my time, right?"
+  ],
+  compare: [
+    "What’s different about you vs listing with an agent?",
+    "Why wouldn’t I just list it traditionally?",
+    "Convince me—why a cash buyer?"
+  ],
+  objection: [
+    "Another buyer said they might pay more.",
+    "I’ve heard cash buyers just lowball.",
+    "I don’t want to get pushed into anything."
+  ],
+  motivation: [
+    "Well… I’m just considering options right now.",
+    "Honestly, I haven’t decided if I’m selling yet.",
+    "I’m on the fence—depends on a few things."
+  ],
+  condition: [
+    "There are a few repairs I don’t want to deal with.",
+    "It’s livable but needs some work.",
+    "I don’t have the time or money for fixes."
+  ],
+  timeline: [
+    "Timing depends on where I’m moving.",
+    "Sooner is better, but I’m not locked in.",
+    "I’m flexible, just don’t want it to drag."
+  ],
+  price: [
+    "What range are we talking about here?",
+    "So… how much would you offer on something like this?",
+    "Give me a ballpark."
+  ],
+  close: [
+    "Okay, what are next steps if we keep going?",
+    "If I liked the number, how would this play out?",
+    "What would you need from me?"
+  ]
+};
+
+// Choice builders per step: each returns {text, key, score, flags, coach}
+const BUILD = {
+  catch: (p)=>[
+    {
+      text: "No catch. You’re always free to say no. If an offer helps, great—if not, I’ll tell you upfront.",
+      key:'safety', score:+1, flags:{}, coach:"✅ Safety: lowers defenses and opens honesty."
+    },
+    {
+      text: "If you want an offer, you’ll need to cooperate.",
+      key:'pressure', score:-2, flags:{}, coach:"⚠️ Pressure triggers resistance; avoid harm."
+    },
+    {
+      text: "Happy to explain, but only if you’re serious. Otherwise this isn’t worth my time.",
+      key:'dismissive', score:-3, flags:{}, coach:"❌ Dismissive tone kills trust early."
+    }
+  ],
+  compare: (p)=>[
+    {
+      text: "Cash is usually lower than list price because you skip repairs, showings, and delays. If convenience doesn’t help you, we shouldn’t force it.",
+      key:'expectations', score:+1, flags:{}, coach:"✅ Anchoring + Moral Duty (only help right fits)."
+    },
+    {
+      text: "We’re faster—agents take months and cost you more. Simple.",
+      key:'overclaim', score:-1, flags:{}, coach:"⚠️ Oversimplified; respect nuance."
+    },
+    {
+      text: "Listing is fine. But most sellers regret it later.",
+      key:'fear', score:-2, flags:{}, coach:"❌ Fear-based framing reduces safety."
+    }
+  ],
+  objection: (p)=>[
+    {
+      text: "Totally reasonable. You’re always free to pass. Want me to lay out both paths—cash vs list—so you can decide calmly?",
+      key:'noPressure', score:+1, flags:{}, coach:"✅ Normalize + Safety + Choice frame."
+    },
+    {
+      text: "They’re bluffing. You won’t get more.",
+      key:'challenge', score:-2, flags:{}, coach:"❌ Confrontational; erodes authority."
+    },
+    {
+      text: "If you want top dollar, list it. If not, take mine.",
+      key:'ultimatum', score:-3, flags:{}, coach:"❌ Ultimatums spike resistance."
+    }
+  ],
+  motivation: (p)=>[
+    {
+      text: "What’s most important for you—speed, price, or making this as easy as possible?",
+      key:'M', score:+1, flags:{M:true}, coach:"✅ Great priority question (M)."
+    },
+    {
+      text: "So… are you serious or not?",
+      key:'pressure', score:-2, flags:{}, coach:"❌ Pressure lowers trust."
+    },
+    {
+      text: "If you don’t decide now, opportunities disappear.",
+      key:'scarcityPush', score:-2, flags:{}, coach:"⚠️ Forced scarcity harms safety."
+    }
+  ],
+  condition: (p)=>[
+    {
+      text: "Got it. Any major items—roof, HVAC, foundation—we should factor in so you’re not surprised later?",
+      key:'C', score:+1, flags:{C:true}, coach:"✅ Calm, factual (C)."
+    },
+    {
+      text: "Tell me everything that’s broken.",
+      key:'blunt', score:-1, flags:{}, coach:"⚠️ Tone matters; soften to keep safety."
+    },
+    {
+      text: "It can’t be that bad—most are fine.",
+      key:'minimize', score:-2, flags:{}, coach:"❌ Minimizing breaks rapport."
+    }
+  ],
+  timeline: (p)=>[
+    {
+      text: "Is there a date you’d love to be done by—even if it’s not firm yet?",
+      key:'T', score:+1, flags:{T:true}, coach:"✅ Future pacing + clarity (T)."
+    },
+    {
+      text: "We close in 7 days—take it or leave it.",
+      key:'force', score:-2, flags:{}, coach:"❌ Control without consent = resistance."
+    },
+    {
+      text: "Just tell me when. I don’t care why.",
+      key:'cold', score:-2, flags:{}, coach:"❌ Drops safety and empathy."
+    }
+  ],
+  price: (p)=>[
+    {
+      text: "To set expectations, similar homes sell to investors around a fair range depending on condition. After we confirm details, I’ll show you a transparent breakdown.",
+      key:'P', score:+1, flags:{P:true}, coach:"✅ Anchoring setup without hard number (P)."
+    },
+    {
+      text: "What’s your rock-bottom number?",
+      key:'lowball', score:-2, flags:{}, coach:"❌ Feels predatory; harms trust."
+    },
+    {
+      text: "Give me a price and I’ll beat it.",
+      key:'bid', score:-1, flags:{}, coach:"⚠️ Competes on price only; weak frame."
+    }
+  ],
+  close: (p)=>[
+    {
+      text: "If it helps, we can outline both paths in writing (cash vs list), then I’ll give a clear offer. You’re comfortable saying no if it’s not right—fair?",
+      key:'closeSafety', score:+1, flags:{}, coach:"✅ Safety + micro-commitment + clarity."
+    },
+    {
+      text: "Great, let’s sign today.",
+      key:'rush', score:-2, flags:{}, coach:"❌ Rush triggers pushback."
+    },
+    {
+      text: "If you don’t commit now, I’m moving on.",
+      key:'threat', score:-3, flags:{}, coach:"❌ Threats destroy trust."
+    }
+  ]
+};
+
+// Persona-sensitive scoring tweaks
+function adjustForPersona(choice, personaId){
+  let delta = 0;
+  if(personaId==='red'){
+    if(choice.key==='closeSafety' || choice.key==='T') delta += 1; // clarity/options
+    if(choice.key==='pressure' || choice.key==='rush' || choice.key==='threat') delta -= 1; // still penalize pressure
   }
-];
-
-function ok(text, delta, tag){ return {text, delta, tag, quality:'good'} }
-function meh(text, delta){ return {text, delta, quality:'meh'} }
-function bad(text, delta){ return {text, delta, quality:'bad'} }
-
-const thread = document.getElementById('thread');
-const choicesBox = document.getElementById('choices');
-const trustFill = document.getElementById('trustFill');
-const trustVal = document.getElementById('trustVal');
-const personaName = document.getElementById('personaName');
-const personaDesc = document.getElementById('personaDesc');
-const stageName = document.getElementById('stageName');
-const toast = document.getElementById('toast');
-
-const dotM = document.getElementById('dotM');
-const dotC = document.getElementById('dotC');
-const dotT = document.getElementById('dotT');
-const dotP = document.getElementById('dotP');
-
-const sumBox = document.getElementById('summary');
-const sumLine = document.getElementById('sumLine');
-const sumMCTP = document.getElementById('sumMCTP');
-document.getElementById('restartBtn').onclick = ()=>{ location.reload(); };
-
-function startGame(){
-  state.persona = personas[Math.floor(Math.random()*personas.length)];
-  state.trust = state.persona.trustStart;
-  personaName.textContent = state.persona.name;
-  personaDesc.textContent = state.persona.desc;
-  updateHud();
-  autoSellerLine();
+  if(personaId==='blue'){
+    if(choice.key==='safety' || choice.key==='noPressure') delta += 1;
+    if(choice.key==='blunt' || choice.key==='cold') delta -= 1;
+  }
+  if(personaId==='green'){
+    if(choice.key==='C' || choice.key==='P') delta += 1; // facts/structure
+    if(choice.key==='overclaim' || choice.key==='fear') delta -= 1;
+  }
+  if(personaId==='yellow'){
+    if(choice.key==='noPressure' || choice.key==='safety') delta += 1;
+    if(choice.key==='challenge' || choice.key==='ultimatum') delta -= 1;
+  }
+  return delta;
 }
 
-function updateHud(){
-  const pct = Math.max(0, Math.min(100, state.trust));
-  trustFill.style.width = pct+'%';
-  trustVal.textContent = Math.round(pct);
-  stageName.textContent = stages[state.stageIndex]?.name ?? '—';
-  dotM.classList.toggle('on', state.mctp.M);
-  dotC.classList.toggle('on', state.mctp.C);
-  dotT.classList.toggle('on', state.mctp.T);
-  dotP.classList.toggle('on', state.mctp.P);
+// Helpers
+const $ = s=>document.querySelector(s);
+function tag(v,el){el.classList.toggle('done',!!v)}
+function trustBadge(){
+  const t = state.trust;
+  const el = $('#trustLabel');
+  el.textContent = `${Math.max(0,Math.min(state.maxTrust,t))} / ${state.maxTrust}`;
+  el.classList.remove('good','warn','bad');
+  el.classList.add(t>=7?'good':(t>=4?'warn':'bad'));
+}
+function setRound(i){ $('#roundLabel').textContent = `${i}/${state.maxRounds}`; }
+function scrollChat(){ const c = $('#chat'); c.scrollTop = c.scrollHeight; }
+
+// Chat rendering
+function pushSeller(text){ addRow('Seller',text,'seller'); }
+function pushMe(text){ addRow('You',text,'me'); }
+function addRow(name,text,who){
+  const chat = $('#chat');
+  const nameEl = document.createElement('div'); nameEl.className='name'; nameEl.textContent = name;
+  const row = document.createElement('div'); row.className = `row ${who}`;
+  const bubble = document.createElement('div'); bubble.className='bubble'; bubble.textContent = text;
+  row.appendChild(bubble);
+  chat.appendChild(nameEl); chat.appendChild(row);
+  scrollChat();
 }
 
-function say(role, text){
-  const row = document.createElement('div');
-  row.className = 'row '+(role==='seller'?'seller':'user');
-  const b = document.createElement('div');
-  b.className = 'bubble';
-  b.textContent = text;
-  row.appendChild(b);
-  thread.appendChild(row);
-  thread.scrollTop = thread.scrollHeight;
+// Step engine
+let stepIndex = 0;
+function nextStep(){
+  if(state.ended) return;
+  state.round++;
+  setRound(state.round);
+  const step = STEPS[stepIndex];
+  // seller speaks
+  const sPool = SELLER[step];
+  pushSeller( sPool[Math.floor(Math.random()*sPool.length)] );
+  // options
+  const builder = BUILD[step];
+  const opts = builder(state.persona);
+  renderOptions(opts, step);
+  // advance pointer
+  stepIndex++;
 }
 
-function sellerPrompt(index){
-  const s = stages[index];
-  const line = s.seller[Math.floor(Math.random()*s.seller.length)];
-  say('seller', line);
-}
-
-function showChoices(){
-  const s = stages[state.stageIndex];
-  const opts = s.choices(state.persona);
-  choicesBox.innerHTML = '';
+function renderOptions(opts, step){
+  const wrap = $('#options'); wrap.innerHTML='';
+  $('#feedback').textContent='';
+  $('#nextBtn').disabled = true;
   opts.forEach((o,i)=>{
-    const btn = document.createElement('button');
-    btn.className='choice';
-    btn.textContent = o.text;
-    btn.onclick = ()=>choose(o);
-    choicesBox.appendChild(btn);
+    const div = document.createElement('div');
+    div.className='opt';
+    div.innerHTML = `<div>${o.text}</div>${state.coach?`<small>${o.coach}</small>`:''}`;
+    div.addEventListener('click',()=>onChoice(o, step));
+    wrap.appendChild(div);
   });
 }
 
-function choose(opt){
-  if(state.lockInput || state.ended) return;
-  state.lockInput = true;
-  // render my message
-  say('user', opt.text);
-  // feedback
-  if(opt.quality==='good'){ flash("✅ Nice. Safety & clarity.", 'good'); }
-  else if(opt.quality==='meh'){ flash("⚠️ Could be safer / clearer.", 'mid'); }
-  else { flash("❌ That creates pressure or risk.", 'bad'); }
+function onChoice(o, step){
+  // show my line
+  pushMe(o.text);
+  // score with persona adjustment
+  let score = o.score + adjustForPersona(o, state.persona.id);
+  state.trust = Math.max(0, Math.min(state.maxTrust, state.trust + score));
+  trustBadge();
 
-  // trust change
-  state.trust += opt.delta;
-  if(opt.tag==='M') state.mctp.M = true;
-  if(opt.tag==='C') state.mctp.C = true;
-  if(opt.tag==='T') state.mctp.T = true;
-  if(opt.tag==='P') state.mctp.P = true;
-
-  updateHud();
-
-  if(state.trust <= 30){
-    fail("Trust dropped too low. Seller disengaged.");
-    return;
+  // mark MCTP flags if any
+  if(o.flags){
+    if(o.flags.M) state.mctp.M = true;
+    if(o.flags.C) state.mctp.C = true;
+    if(o.flags.T) state.mctp.T = true;
+    if(o.flags.P) state.mctp.P = true;
   }
+  tag(state.mctp.M,$('#tagM'));
+  tag(state.mctp.C,$('#tagC'));
+  tag(state.mctp.T,$('#tagT'));
+  tag(state.mctp.P,$('#tagP'));
 
-  // advance to next stage
-  state.stageIndex++;
-  if(state.stageIndex >= stages.length){
-    finish();
-    return;
+  // feedback line tied to Apex Method
+  const fb = $('#feedback');
+  let msg = '';
+  if(score>0) msg = "Nice. You created safety and guided with conviction.";
+  else if(score===0) msg = "Neutral response. Consider reinforcing safety or clarity.";
+  else if(score<0 && score>-3) msg = "Careful—tone shaved trust. Reframe with permission and options.";
+  else msg = "That triggered resistance. Reset safety and offer a choice frame.";
+  fb.textContent = msg;
+
+  // prepare next or end
+  $('#options').innerHTML='';
+  const terminal = stepIndex >= STEPS.length;
+  if(terminal || state.round>=state.maxRounds || state.trust<=0){
+    endSession();
+  } else {
+    $('#nextBtn').disabled = false;
   }
-  setTimeout(autoSellerLine, 600);
 }
 
-function autoSellerLine(){
-  if(state.ended) return;
-  // auto-sequence seller line, then show choices
-  state.lockInput = true;
-  updateHud();
-  setTimeout(()=>{
-    sellerPrompt(state.stageIndex);
-    setTimeout(()=>{ state.lockInput = false; showChoices(); }, 500);
-  }, 350);
-}
-
-function flash(msg, type){
-  toast.textContent = msg;
-  toast.style.display='block';
-  toast.style.borderColor = type==='good' ? 'rgba(34,197,94,.4)'
-                     : type==='bad' ? 'rgba(239,68,68,.5)'
-                     : 'rgba(234,179,8,.5)';
-  setTimeout(()=>toast.style.display='none', 1200);
-}
-
-function fail(reason){
+function endSession(){
   state.ended = true;
-  choicesBox.innerHTML = '';
-  say('seller', "I think I’ll pass for now. Thanks.");
-  setTimeout(()=>summary(false, reason), 600);
+  $('#nextBtn').style.display='none';
+  $('#restartBtn').style.display='';
+  const got = Object.values(state.mctp).filter(Boolean).length;
+  let evalLine = '';
+  if(state.trust<=0) evalLine = "Trust collapsed. The seller disengaged. Lead with safety and permission earlier.";
+  else if(got>=3 && state.trust>=7) evalLine = "Strong! You earned trust and hit core MCTP. Your framing matched the persona.";
+  else if(got>=2) evalLine = "Decent structure. Add clearer permission and choose questions that reveal missing MCTP.";
+  else evalLine = "You need more discovery. Ask priority, condition, timeline, and anchor expectations earlier.";
+
+  const sum = $('#summary');
+  sum.classList.remove('hidden');
+  sum.innerHTML = `
+    <h3>Session summary</h3>
+    <div class="hr"></div>
+    <p><strong>Persona:</strong> ${state.persona.name} <span class="muted">(${state.tone})</span></p>
+    <p><strong>Trust:</strong> ${state.trust}/${state.maxTrust}</p>
+    <p><strong>MCTP captured:</strong>
+      <span class="${state.mctp.M?'pill good':'pill bad'}">M</span>
+      <span class="${state.mctp.C?'pill good':'pill bad'}">C</span>
+      <span class="${state.mctp.T?'pill good':'pill bad'}">T</span>
+      <span class="${state.mctp.P?'pill good':'pill bad'}">P</span>
+      <span class="muted">(${Object.values(state.mctp).filter(Boolean).length}/4)</span>
+    </p>
+    <div class="hr"></div>
+    <p>${evalLine}</p>
+    <p class="muted">Apex Method: Create Safety • Moral Duty • Internal Conviction • Avoid Harm.</p>
+  `;
 }
 
-function finish(){
-  state.ended = true;
-  choicesBox.innerHTML = '';
-  say('seller', "Okay, send what you mentioned and we’ll review.");
-  setTimeout(()=>summary(true), 600);
+// Scenario init
+function seedScenario(){
+  // reset UI/state
+  $('#summary').classList.add('hidden'); $('#summary').innerHTML='';
+  $('#nextBtn').style.display=''; $('#restartBtn').style.display='none';
+  $('#nextBtn').disabled=true; $('#feedback').textContent='';
+  $('#options').innerHTML=''; $('#chat').innerHTML='';
+  state.trust = 5; trustBadge();
+  state.round = 0; setRound(0);
+  state.mctp = {M:false,C:false,T:false,P:false};
+  tag(false,$('#tagM')); tag(false,$('#tagC')); tag(false,$('#tagT')); tag(false,$('#tagP'));
+  state.ended=false; stepIndex=0;
+
+  // persona + tone
+  const persona = PERSONAS[Math.floor(Math.random()*PERSONAS.length)];
+  const tone = persona.tones[Math.floor(Math.random()*persona.tones.length)];
+  state.persona = persona; state.tone = tone;
+  $('#personaLabel').textContent = persona.name;
+  $('#toneLabel').textContent = tone;
+
+  // Opening line (persona-flavored)
+  const opens = {
+    red: "Let’s keep this straightforward. How do you work?",
+    blue: "Hey—happy to chat. I just want this to feel easy.",
+    green:"I’ll need clear details before deciding.",
+    yellow:"I want this to be smooth for everyone involved.",
+    neutral:"Okay, I’m listening. How does this go?"
+  };
+  pushSeller(opens[persona.id] || opens.neutral);
+
+  // start first step after a beat
+  setTimeout(nextStep, 400);
 }
 
-function summary(won, reason){
-  const mCount = Object.values(state.mctp).filter(Boolean).length;
-  const win = (state.trust>=65 && mCount>=3);
-  const outcome = won && win;
-  sumBox.style.display='block';
-  const line = outcome
-    ? `🟢 Win! Trust ${Math.round(state.trust)} • MCTP ${mCount}/4 • You guided safely using the Apex Method.`
-    : `🔴 Incomplete. Trust ${Math.round(state.trust)} • MCTP ${mCount}/4${reason?` • ${reason}`:''}`;
-  sumLine.textContent = line;
-  const parts = [
-    `Motivation: ${state.mctp.M?'✓':'—'}`,
-    `Condition: ${state.mctp.C?'✓':'—'}`,
-    `Timeline: ${state.mctp.T?'✓':'—'}`,
-    `Price: ${state.mctp.P?'✓':'—'}`
-  ];
-  sumMCTP.innerHTML = `<h3>MCTP Capture</h3><p>${parts.join(' • ')}</p>`;
-  updateHud();
-}
+// Controls
+$('#nextBtn').addEventListener('click', ()=>{
+  $('#nextBtn').disabled=true;
+  setTimeout(nextStep, 250);
+});
+$('#restartBtn').addEventListener('click', seedScenario);
+
+// Password gate
+const PW = "SellerConvo2025";
+$('#unlock').addEventListener('click', ()=>{
+  const v = $('#pw').value.trim();
+  if(v === PW){
+    $('#gate').style.display='none';
+    seedScenario();
+  } else {
+    $('#pw').value='';
+    alert('Incorrect password.');
+  }
+});
+$('#pw').addEventListener('keydown',(e)=>{ if(e.key==='Enter') $('#unlock').click(); });
 </script>
 </body>
 </html>
