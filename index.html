@@ -1,553 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Apex Seller Conversation Trainer 🦈</title>
-  <meta name="description" content="Exclusive Apex Academy simulator for mastering seller conversations, rapport, MCTP discovery, and trust-based closing."/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0b0b0b;
-      --card:#171717;
-      --panel:#1e1e1e;
-      --ink:#f1f1f1;
-      --faded:#a7a7a7;
-      --gold:#FFD700;
-      --gold-deep:#b78900;
-      --red:#ea4335;
-      --green:#34a853;
-      --border:#2a2a2a;
-      --accent-grad: linear-gradient(135deg,#FFD700,#FFA500);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
-    .container{max-width:1100px;margin:0 auto;padding:26px}
-    .hidden{display:none !important}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Apex Seller Conversation Trainer — Apex Method Edition</title>
+<style>
+  :root{
+    --bg:#0f0f10;
+    --panel:#171719;
+    --card:#1f1f22;
+    --ink:#f6f6f7;
+    --muted:#a7abb4;
+    --gold1:#b3903c;
+    --gold2:#d9c27a;
+    --danger:#f05454;
+    --ok:#39d98a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1400px 800px at 10% -10%,#1a1a1d 0%,#111113 45%,#0c0c0d 100%),#0b0b0c;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  .wrap{max-width:1200px;margin:auto;padding:24px}
+  header{
+    display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid #26262b;
+    background:linear-gradient(180deg,#19191c 0%, #141417 100%);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px
+  }
+  .brand img{
+    width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))
+  }
+  .title{
+    font-weight:800;letter-spacing:.2px;font-size:18px;line-height:1.1
+  }
+  .title span{
+    background:linear-gradient(90deg,var(--gold1),var(--gold2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent
+  }
+  .gate-badge{
+    margin-left:auto;font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #2c2c31;color:var(--muted)
+  }
 
-    /* Password Gate */
-    .gate{
-      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-      background:radial-gradient(1000px 600px at 50% -10%, #1d1d1d, #0b0b0b);
-      z-index:9999;
-    }
-    .gate-card{
-      width:min(560px,92vw);background:var(--card);border:1px solid var(--border);border-radius:16px;
-      padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5);
-    }
-    .gate-head{display:flex;gap:14px;align-items:center;margin-bottom:8px}
-    .gate-logo{
-      width:56px;height:56px;border-radius:12px;display:grid;place-items:center;
-      background:var(--panel);border:1px solid var(--border);font-size:30px
-    }
-    .gate-title{font-weight:800;font-size:1.5rem;letter-spacing:.2px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-    .gate-sub{color:var(--faded);margin-bottom:16px}
-    .input{
-      width:100%;background:#131313;border:1px solid var(--border);border-radius:10px;
-      padding:14px 15px;font-size:16px;color:var(--ink);outline:none;transition:.2s
-    }
-    .input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.12)}
-    .btn{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:800}
-    .btn-primary{background:var(--accent-grad);color:#000}
-    .btn-ghost{background:#111;border:1px solid var(--border);color:var(--ink)}
-    .gate-actions{display:flex;gap:10px;margin-top:12px}
-    .err{color:#ff6b6b;font-weight:700;margin-top:10px;display:none}
+  .grid{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-top:16px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
 
-    /* Header */
-    header{
-      border-bottom:1px solid var(--border);background:var(--card);
-      position:sticky;top:0;z-index:5
-    }
-    .head-wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 26px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand img{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);object-fit:contain;background:#111}
-    .brand-title{font-weight:900;font-size:1.25rem;letter-spacing:.3px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-    .tag{font-size:.85rem;color:#000;background:var(--accent-grad);padding:6px 10px;border-radius:999px;font-weight:800;white-space:nowrap}
+  .panel{background:linear-gradient(180deg,#161619,#131316);border:1px solid #26262b;border-radius:14px;padding:16px}
+  .panel h3{margin:0 0 10px 0;font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 
-    /* Layout */
-    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
-    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .step{
+    padding:10px 12px;border:1px solid #25252a;border-radius:10px;background:#16161a;color:#d6d7db;font-size:14px;line-height:1.25
+  }
+  .step small{display:block;color:var(--muted);margin-top:4px;font-size:11px}
+  .step.active{border-color:rgba(212,185,93,.35);background:linear-gradient(180deg,#19191d,#17171a)}
+  .step.active .dot{background:linear-gradient(90deg,var(--gold1),var(--gold2))}
+  .dot{width:8px;height:8px;border-radius:50%;background:#3a3a42;display:inline-block;margin-right:8px;vertical-align:middle}
 
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
-    .title{font-size:1.05rem;font-weight:800;margin-bottom:8px}
-    .sub{color:var(--faded);font-size:.92rem;margin-bottom:12px}
+  .card{background:linear-gradient(180deg,#19191d,#141417);border:1px solid #26262b;border-radius:14px;padding:16px}
+  .stack{display:flex;flex-direction:column;gap:12px}
 
-    /* Conversation area */
-    .conv{
-      height:440px;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px
-    }
-    .row{margin-bottom:12px}
-    .bubble{
-      display:inline-block;padding:10px 12px;border-radius:12px;border:1px solid var(--border)
-    }
-    .you{background:#0f1322}
-    .seller{background:#121212}
-    .choices{display:grid;gap:10px;margin-top:12px}
-    .choice{
-      padding:12px;border-radius:10px;border:1px solid var(--border);background:#131313;cursor:pointer;transition:.15s
-    }
-    .choice:hover{border-color:var(--gold);transform:translateY(-1px)}
-    .choice.hint{outline:2px dashed var(--gold);background:#151308}
+  .meter{height:10px;border-radius:999px;background:#222226;border:1px solid #2b2b31;overflow:hidden}
+  .fill{height:100%;background:linear-gradient(90deg,#4ce3a4,#b2f7ce);width:0%}
 
-    /* Stats */
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    @media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
-    .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px}
-    .stat label{color:var(--faded);font-size:.8rem}
-    .stat .v{font-weight:900;font-size:1.15rem}
-    .trust-bar{height:10px;background:#111;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
-    .trust-fill{height:100%;background:var(--accent-grad);width:0%}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{font-size:12px;border:1px solid #2b2b31;border-radius:999px;padding:6px 10px;color:var(--muted)}
+  .tag.ok{border-color:#2f6e57;color:#b9f4d5}
+  .tag.warn{border-color:#6e2f2f;color:#ffc7c7}
 
-    /* Footer actions */
-    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    .pill{background:#111;border:1px solid var(--border);padding:10px 12px;border-radius:999px;font-weight:700}
-    .pill strong{color:var(--gold)}
+  #conversation{min-height:220px}
+  .bubble{
+    padding:14px 16px;border:1px solid #27272c;border-radius:12px;background:#151519
+  }
+  .bubble.me{background:linear-gradient(180deg,#1b1b20,#16161a)}
+  .choice-row{display:grid;gap:10px;grid-template-columns:1fr}
+  .choice{
+    text-align:left;padding:12px 14px;border-radius:12px;border:1px solid #2a2a30;background:#16161b;color:#e6e7eb;cursor:pointer;font-weight:600
+  }
+  .choice:hover{border-color:#3a3a42}
+  .choice.best{outline:1px solid rgba(212,185,93,.45)}
+  .choice.bad{outline:1px solid rgba(240,84,84,.45)}
 
-    footer{color:var(--faded);font-size:.85rem;text-align:center;margin:18px 0 36px}
+  .cta-row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border:1px solid #2b2b31;background:#17171b;color:#f5f6f7;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+  .btn.gold{background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#111113;border:none}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
 
-    /* Logo drop help */
-    .logo-hint{font-size:.8rem;color:var(--faded)}
-  </style>
+  .foot{
+    display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:var(--muted);font-size:12px
+  }
+  .foot b{color:#e7e7ea}
+
+  /* Modal Gate */
+  .modal{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:50;padding:20px
+  }
+  .gate{
+    max-width:520px;width:100%;background:linear-gradient(180deg,#17171b,#121216);border:1px solid #2a2a30;border-radius:16px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.45)
+  }
+  .gate h2{margin:0 0 6px 0;font-size:22px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .input{display:flex;gap:8px}
+  input[type=password]{flex:1;background:#101013;color:#f7f7fa;border:1px solid #2a2a30;border-radius:10px;padding:12px 14px;font-size:14px;letter-spacing:.4px}
+  .err{color:var(--danger);font-size:12px;margin-top:8px;min-height:16px}
+
+  .score-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .score-card{border:1px solid #2a2a30;background:#151519;border-radius:12px;padding:12px}
+  .score-card h4{margin:0 0 6px;font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .number{font-size:22px;font-weight:800}
+  .goldtext{background:linear-gradient(90deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+</style>
 </head>
 <body>
-  <!-- PASSWORD GATE -->
-  <div class="gate" id="gate">
-    <div class="gate-card">
-      <div class="gate-head">
-        <div class="gate-logo">🦈</div>
-        <div>
-          <div class="gate-title">Apex Seller Conversation Trainer</div>
-          <div class="gate-sub">Exclusive access for Apex Academy students</div>
-        </div>
-      </div>
-      <input id="pw" type="password" placeholder="Enter access code" class="input" autocomplete="current-password"
-             onkeypress="if(event.key==='Enter'){unlock()}"/>
-      <div class="gate-actions">
-        <button class="btn btn-primary" onclick="unlock()">Unlock Access</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('pw').value='';document.getElementById('pw').focus()">Clear</button>
-      </div>
-      <div id="err" class="err">❌ Incorrect password. Try again.</div>
-      <div class="logo-hint" style="margin-top:10px;">
-        Have a logo? Put <code>Shark-T.png</code> next to this HTML file to show it in the header.
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <!-- Replace the src with your hosted Apex logo URL -->
+      <img id="apexLogo" src="https://placehold.co/88x88/png?text=APEX" alt="Apex Logo" />
+      <div class="title">
+        <div><span>Apex</span> Seller Conversation Trainer</div>
+        <small style="color:var(--muted)">Apex Method Edition</small>
       </div>
     </div>
-  </div>
-
-  <!-- APP -->
-  <header id="appHeader" class="hidden">
-    <div class="head-wrap">
-      <div class="brand">
-        <img id="apexLogo" src="Shark-T.png" alt="Apex Logo" onerror="this.style.display='none'"/>
-        <div>
-          <div class="brand-title">Apex Seller Conversation Trainer</div>
-          <div style="font-size:.85rem;color:var(--faded);margin-top:2px;">Exclusive Access • Apex Academy</div>
-        </div>
-      </div>
-      <div class="tag">RJ Bates–Inspired • Apex Method</div>
-    </div>
+    <div class="gate-badge">Exclusive access</div>
   </header>
 
-  <main class="container hidden" id="app">
-    <div class="grid">
-      <section class="card">
-        <div class="title">Live Conversation</div>
-        <div class="sub">Choose your responses. Build trust, uncover MCTP (Motivation, Condition, Timeline, Price), and earn an Apex score.</div>
-        <div id="feed" class="conv" aria-live="polite"></div>
-        <div id="choiceWrap" class="choices"></div>
-        <div class="actions">
-          <button class="btn btn-ghost" onclick="hint()" id="hintBtn">💡 Hint (–10 pts)</button>
-          <button class="btn btn-ghost" onclick="restart()">🔁 New Scenario</button>
-          <span class="pill">Turns: <strong id="turn">0</strong>/5</span>
-          <span class="pill">Good choices used: <strong id="goodCount">0</strong></span>
-        </div>
-      </section>
+  <div class="grid">
+    <!-- LEFT: Steps / Trackers -->
+    <aside class="panel">
+      <h3>Flow — Apex Method</h3>
+      <div id="steps" class="steps"></div>
 
-      <aside class="card">
-        <div class="title">Deal Readiness</div>
-        <div class="stats" style="margin-bottom:12px">
-          <div class="stat">
-            <label>Trust</label>
-            <div class="trust-bar"><div id="trustFill" class="trust-fill"></div></div>
-            <div class="v" id="trustVal">0 / 10</div>
+      <div class="stack" style="margin-top:14px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase">Trust</div>
+            <div id="trustLabel" style="font-weight:800">0/10</div>
           </div>
-          <div class="stat">
-            <label>M • Motivation</label>
-            <div class="v" id="mVal">❌</div>
-          </div>
-          <div class="stat">
-            <label>C • Condition</label>
-            <div class="v" id="cVal">❌</div>
-          </div>
-          <div class="stat">
-            <label>T • Timeline</label>
-            <div class="v" id="tVal">❌</div>
-          </div>
-          <div class="stat">
-            <label>P • Price</label>
-            <div class="v" id="pVal">❌</div>
-          </div>
-          <div class="stat">
-            <label>Score</label>
-            <div class="v" id="score">0 / 100</div>
-          </div>
+          <div class="meter"><div id="trustFill" class="fill"></div></div>
         </div>
-        <div class="title" style="margin-top:8px">Persona</div>
-        <div id="persona" class="sub">—</div>
-        <div class="title" style="margin-top:12px">Apex Coaching</div>
-        <div id="coach" class="sub">Keep your tone calm, curious, and confident. Guide, don’t pressure.</div>
-      </aside>
+
+        <div class="card">
+          <div style="font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">MCTP</div>
+          <div id="mctpTags" class="tags"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: Conversation -->
+    <main class="panel">
+      <div class="stack">
+        <div id="conversation" class="stack"></div>
+
+        <div id="choices" class="choice-row"></div>
+
+        <div class="cta-row">
+          <button id="nextBtn" class="btn gold" disabled>Next Step</button>
+          <button id="restartBtn" class="btn" onclick="location.reload()">Restart</button>
+        </div>
+
+        <div class="foot">
+          <div>Step <b id="stepX">1</b>/10 • Following the <b>Apex Method</b></div>
+          <div>Goal: Build trust, complete <b>MCTP</b>, and align with flow.</div>
+        </div>
+
+        <div id="scoreBlock" class="card" style="display:none">
+          <h3 style="margin:0 0 8px 0">Results</h3>
+          <div class="score-grid">
+            <div class="score-card"><h4>Apex Flow</h4><div class="number" id="flowScore">0 / 50</div></div>
+            <div class="score-card"><h4>Trust & Tone</h4><div class="number" id="trustScore">0 / 30</div></div>
+            <div class="score-card"><h4>MCTP</h4><div class="number" id="mctpScore">0 / 20</div></div>
+            <div class="score-card"><h4>Total</h4><div class="number goldtext" id="totalScore">0 / 100</div></div>
+          </div>
+          <div style="margin-top:10px;color:var(--muted)" id="coachNote"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="gateModal" class="modal" role="dialog" aria-modal="true">
+  <div class="gate">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <!-- Optional header logo again -->
+      <img src="https://placehold.co/64x64/png?text=APEX" alt="Apex" style="width:32px;height:32px;border-radius:6px;object-fit:contain" />
+      <h2 style="margin:0"><span style="background:linear-gradient(90deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Apex</span> Access</h2>
     </div>
+    <div class="sub">Enter passcode to launch trainer.</div>
+    <div class="input">
+      <input id="gateInput" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="gateBtn" class="btn gold">Unlock</button>
+    </div>
+    <div id="gateErr" class="err"></div>
+    <div class="sub" style="margin-top:10px">Title: <b>Apex Seller Conversation Trainer — Apex Method Edition</b></div>
+  </div>
+</div>
 
-    <section class="card" style="margin-top:16px">
-      <div class="title">Session Summary</div>
-      <div class="sub" id="summary">Complete 5 turns to see the breakdown and coaching notes.</div>
-    </section>
-  </main>
+<script>
+/* ========= APEX SELLER CONVERSATION TRAINER — SINGLE FILE =========
+   Branding:
+   - To use your own logo, replace the <img id="apexLogo"> src with your hosted image.
+   Access:
+   - Passcode is set to: SellerConvo2025
+=================================================================== */
 
-  <footer id="foot" class="hidden">
-    <div class="container">© 2025 Apex Academy • Train harder, close smarter. 🦈</div>
-  </footer>
+const PASS = "SellerConvo2025";
 
-  <script>
-    // ===== CONFIG =====
-    const PASSWORD = "ApexAnalyzer2025";
+// ----- Apex Method 10-step flow (with guaranteed MCTP between steps 6–9) -----
+const FLOW = [
+  { key:"philosophy",   title:"Guiding Philosophy",         tip:"Create safety & lead with conviction.", best:0,
+    choices:[
+      {t:"“You’re in control the whole way — my job is to help you decide safely.”", trust:+2, flow:+1 },
+      {t:"“I buy houses fast. Let’s move.”", trust:-1, flow:0, bad:true },
+      {t:"“We’ll keep this simple and honest — fair?”", trust:+1, flow:+1 }
+    ]},
+  { key:"safety",       title:"Safety-First Rapport",       tip:"Give explicit permission to say no.", best:0,
+    choices:[
+      {t:"“If I’m not the right fit, totally okay to say no — deal?”", trust:+2, flow:+1 },
+      {t:"“Let’s jump straight to price.”", trust:-1, flow:0, bad:true },
+      {t:"“Quick chat — we’ll be upfront both ways. Sound good?”", trust:+1, flow:+1 }
+    ]},
+  { key:"expect",       title:"Expectation Setting",        tip:"Anchor convenience vs price tradeoff.", best:1,
+    choices:[
+      {t:"“Cash offers are lower than retail because you skip repairs, fees, and delays.”", trust:+1, flow:+2 },
+      {t:"“I’ll beat any agent price.”", trust:-2, flow:0, bad:true },
+      {t:"“Fast and clean — that’s the trade for convenience.”", trust:+0, flow:+1 }
+    ]},
+  { key:"objections",   title:"Objection Handling",         tip:"Acknowledge → Normalize → Elevate → No-pressure → Choice.", best:0,
+    choices:[
+      {t:"“Great question — most folks feel that way. You can always pass. Want to see both paths?”", trust:+2, flow:+2 },
+      {t:"“That’s just how it is.”", trust:-2, flow:0, bad:true },
+      {t:"“Happy to explain numbers and timing, no pressure.”", trust:+1, flow:+1 }
+    ]},
+  { key:"whyus",        title:"Why Sellers Choose Us",      tip:"Motivate without labels; focus on outcomes.", best:0,
+    choices:[
+      {t:"“No repairs, no showings, clear timeline. Does any of that fit your situation?”", trust:+1, flow:+2 },
+      {t:"“Because wholesaling is better.”", trust:-2, flow:0, bad:true },
+      {t:"“If speed or certainty help you, we’re useful.”", trust:+1, flow:+1 }
+    ]},
+  // M starts
+  { key:"M",            title:"Discovery — Motivation (M)", tip:"Find the reason for selling.", best:0, mctp:"M",
+    choices:[
+      {t:"“What’s prompting the move now, and how would the right outcome help?”", trust:+1, flow:+2, reveal:"M" },
+      {t:"“Bottom line first.”", trust:-1, flow:0, bad:true },
+      {t:"“If nothing changes soon, what does that affect for you?”", trust:+1, flow:+1, reveal:"M" }
+    ]},
+  { key:"C",            title:"Discovery — Condition (C)",  tip:"Understand repairs & systems.", best:0, mctp:"C",
+    choices:[
+      {t:"“Any big items (roof, HVAC, plumbing, foundation) I should plan for?”", trust:+1, flow:+2, reveal:"C" },
+      {t:"“Tell me everything wrong with it.”", trust:-1, flow:0, bad:true },
+      {t:"“What updates would a buyer likely handle?”", trust:+1, flow:+1, reveal:"C" }
+    ]},
+  { key:"T",            title:"Discovery — Timeline (T)",   tip:"Agree on pace that serves them.", best:0, mctp:"T",
+    choices:[
+      {t:"“Ideal closing window if we’re a fit?”", trust:+1, flow:+2, reveal:"T" },
+      {t:"“We close in 7 days. Works?”", trust:-1, flow:0, bad:true },
+      {t:"“Any deadlines you’re solving for?”", trust:+1, flow:+1, reveal:"T" }
+    ]},
+  { key:"P",            title:"Discovery — Price (P)",      tip:"Elicit range; keep safety framing.", best:2, mctp:"P",
+    choices:[
+      {t:"“Based on condition & speed, where did you hope to land?”", trust:+1, flow:+1, reveal:"P" },
+      {t:"“Give me your rock-bottom now.”", trust:-2, flow:0, bad:true },
+      {t:"“Sellers in similar spots were around $X–$Y after costs — where do you see this?”", trust:+1, flow:+2, reveal:"P" }
+    ]},
+  // Close
+  { key:"close",        title:"Close — Micro-Commitments",  tip:"Offer clarity, stories, and choice.", best:0,
+    choices:[
+      {t:"“Want a written breakdown & an offer to review—no pressure?”", trust:+2, flow:+2 },
+      {t:"“Sign now.”", trust:-2, flow:0, bad:true },
+      {t:"“Would seeing a quick example help you feel certain?”", trust:+1, flow:+1 }
+    ]}
+];
 
-    const personas = [
-      { id:"skeptical", name:"Skeptical Seller", blurb:"Cautious and proof-driven. Needs credibility and logic.", baseTrust:3 },
-      { id:"emotional", name:"Emotional Seller", blurb:"Attached to the home. Responds to empathy and patience.", baseTrust:5 },
-      { id:"rushed", name:"Rushed Seller", blurb:"Time-sensitive. Values clarity and speed over fluff.", baseTrust:4 },
-      { id:"motivated", name:"Motivated Seller", blurb:"Flexible on terms. Pragmatic and outcome-focused.", baseTrust:6 },
-      { id:"analytical", name:"Analytical Seller", blurb:"Data-first mindset. Wants comps, logic, and structure.", baseTrust:4 }
-    ];
+// ----- State -----
+const state = {
+  step: 0, // 0..9
+  trust: 0, // 0..10
+  flowPts: 0, // /50
+  mctp:{M:false,C:false,T:false,P:false},
+  answered:false,
+  transcript:[]
+};
 
-    // Dialogue pools (each choice has text, trust impact, and optional reveal: 'M'|'C'|'T'|'P')
-    const pool = {
-      opening: [
-        { t:"Good morning — thanks for your time. I work with homeowners in situations like yours.", trust:+2 },
-        { t:"Hi, I’m a local buyer. I’d love to understand your goals before we talk numbers.", trust:+2 },
-        { t:"What's your bottom line?", trust:-2 },
-        { t:"Tell me what's wrong with the house so I can make a quick offer.", trust:-3 }
-      ],
-      motivation: [
-        { t:"Transitions can be tricky. What’s prompting the sale right now?", trust:+2, r:"M" },
-        { t:"Help me understand your situation so we can structure the best solution.", trust:+1, r:"M" },
-        { t:"Are you serious about selling or just testing the market?", trust:-2 }
-      ],
-      condition: [
-        { t:"Walk me through the condition — what’s working well and what needs attention?", trust:+1, r:"C" },
-        { t:"Any major repairs or updates in the last 5–10 years?", trust:+1, r:"C" },
-        { t:"Just tell me what's broken so I can discount it.", trust:-2 }
-      ],
-      timeline: [
-        { t:"What’s your ideal timeline for closing so we can plan around it?", trust:+2, r:"T" },
-        { t:"Is there any flexibility on your move-out if we help with terms?", trust:+1, r:"T" },
-        { t:"I close in 7 days cash — that works for you, right?", trust:-1 }
-      ],
-      price: [
-        { t:"Have you had a number in mind or a range you’d be comfortable with?", trust:+1, r:"P" },
-        { t:"Based on condition and comps, I’ll share a fair range — how does that sound?", trust:+1, r:"P" },
-        { t:"What's your absolute rock-bottom?", trust:-2 }
-      ],
-      pushback: [
-        { t:"I hear you. Let’s find a middle ground that works for both of us.", trust:+2 },
-        { t:"That’s my offer. Take it or leave it.", trust:-3 },
-        { t:"What part of the offer feels off to you?", trust:+1 }
-      ],
-      objection: [
-        { t:"You’re right to have concerns — let’s address them one by one.", trust:+2 },
-        { t:"Let me walk you through how I arrived at that number.", trust:+1 },
-        { t:"You won't get better than this anywhere else.", trust:-2 }
-      ],
-      closing: [
-        { t:"I want this to be a win–win. Are you comfortable moving forward on these terms?", trust:+2 },
-        { t:"I’ve gone as far as I can — what would help you say yes today?", trust:+1 },
-        { t:"Final offer. Yes or no?", trust:-2 }
-      ]
-    };
+// ----- UI Elements -----
+const stepsEl = document.getElementById('steps');
+const convEl  = document.getElementById('conversation');
+const choicesEl = document.getElementById('choices');
+const nextBtn = document.getElementById('nextBtn');
+const stepX = document.getElementById('stepX');
+const trustFill = document.getElementById('trustFill');
+const trustLabel = document.getElementById('trustLabel');
+const mctpTags = document.getElementById('mctpTags');
+const scoreBlock = document.getElementById('scoreBlock');
+const flowScore = document.getElementById('flowScore');
+const trustScore = document.getElementById('trustScore');
+const mctpScore = document.getElementById('mctpScore');
+const totalScore = document.getElementById('totalScore');
+const coachNote = document.getElementById('coachNote');
 
-    // ===== STATE =====
-    let state = {};
-    function newState(){
-      const persona = personas[Math.floor(Math.random()*personas.length)];
-      return {
-        turn:0,
-        trust: persona.baseTrust,
-        maxTrust:10,
-        score:0,
-        found:{ M:false, C:false, T:false, P:false },
-        goodChoices:0,
-        persona,
-        history:[],
-        usedHint:false
-      };
+// ----- Renderers -----
+function renderSteps(){
+  stepsEl.innerHTML = FLOW.map((s, i)=>`
+    <div class="step ${i===state.step?'active':''}">
+      <div><span class="dot"></span><b>${i+1}. ${s.title}</b></div>
+      <small>${s.tip}</small>
+    </div>
+  `).join('');
+}
+
+function renderMCTP(){
+  const items = [
+    {k:'M', label:'Motivation'},
+    {k:'C', label:'Condition'},
+    {k:'T', label:'Timeline'},
+    {k:'P', label:'Price'}
+  ];
+  mctpTags.innerHTML = items.map(it=>{
+    const has = !!state.mctp[it.k];
+    return `<div class="tag ${has?'ok':'warn'}">${it.k} — ${it.label} ${has?'✓':''}</div>`;
+  }).join('');
+}
+
+function setTrust(delta){
+  state.trust = Math.max(0, Math.min(10, state.trust + delta));
+  trustFill.style.width = (state.trust*10) + '%';
+  trustLabel.textContent = `${state.trust}/10`;
+}
+
+function speak(txt, mine=false){
+  const node = document.createElement('div');
+  node.className = 'bubble'+(mine?' me':'');
+  node.textContent = txt;
+  convEl.appendChild(node);
+  convEl.scrollTop = convEl.scrollHeight;
+}
+
+function renderStep(){
+  renderSteps();
+  renderMCTP();
+  stepX.textContent = state.step+1;
+
+  const s = FLOW[state.step];
+  choicesEl.innerHTML = s.choices.map((c, idx)=>{
+    const cls = [
+      'choice',
+      s.best===idx?'best':'',
+      c.bad?'bad':''
+    ].join(' ').trim();
+    return `<button class="${cls}" data-idx="${idx}">${c.t}</button>`;
+  }).join('');
+
+  // system prompt line for the step
+  convEl.innerHTML = '';
+  speak(`Step ${state.step+1} — ${s.title}`);
+  speak(s.tip);
+  state.answered = false;
+  nextBtn.disabled = true;
+
+  // bind choices
+  [...choicesEl.querySelectorAll('.choice')].forEach(btn=>{
+    btn.addEventListener('click', onChoice);
+  });
+}
+
+function onChoice(e){
+  if(state.answered) return;
+  state.answered = true;
+  const s = FLOW[state.step];
+  const idx = +e.currentTarget.dataset.idx;
+  const pick = s.choices[idx];
+
+  // score & effects
+  setTrust(pick.trust||0);
+  state.flowPts += (pick.flow||0)*5; // each flow point worth 5 (max ~50)
+  if(s.mctp && pick.reveal) {
+    state.mctp[s.mctp] = true;
+  }
+
+  // transcript
+  state.transcript.push({step:state.step+1, title:s.title, said:pick.t});
+
+  // show spoken line & a lightweight seller response
+  speak(pick.t, true);
+  let reply = "Okay, that helps.";
+  if(pick.trust>=2) reply = "Thanks — that actually makes me feel comfortable.";
+  if(pick.trust<=-1) reply = "Hmm… not sure about that.";
+  if(s.mctp && pick.reveal){
+    reply += ` (You uncovered ${s.mctp}.)`;
+  }
+  speak(reply);
+
+  // enable next
+  nextBtn.disabled = false;
+}
+
+function finish(){
+  // scoring buckets
+  const flow = Math.min(50, Math.max(0, Math.round(state.flowPts)));
+  const trust = Math.round((state.trust/10)*30); // up to 30
+  const mCount = Object.values(state.mctp).filter(Boolean).length;
+  const mctps = Math.round((mCount/4)*20); // up to 20
+  const total = flow + trust + mctps;
+
+  flowScore.textContent = `${flow} / 50`;
+  trustScore.textContent = `${trust} / 30`;
+  mctpScore.textContent = `${mctps} / 20`;
+  totalScore.textContent = `${total} / 100`;
+
+  let note = [];
+  if(mCount<4) note.push(`Complete all MCTP signals next time (${mCount}/4).`);
+  if(state.trust<7) note.push(`Raise trust with more safety language (you ended at ${state.trust}/10).`);
+  if(flow<40) note.push(`Stick tighter to the Apex flow — your flow score was ${flow}/50.`);
+  if(note.length===0) note.push(`Excellent alignment with the Apex Method. Strong, safe leadership.`);
+
+  coachNote.textContent = note.join(' ');
+
+  scoreBlock.style.display = 'block';
+  choicesEl.innerHTML = '';
+  speak("Good work. Results posted below.");
+}
+
+// ----- Controls -----
+nextBtn.addEventListener('click', ()=>{
+  if(state.step < FLOW.length-1){
+    state.step++;
+    renderStep();
+    if(state.step===FLOW.length-1){
+      nextBtn.textContent = "Finish";
     }
+  } else {
+    // Finish
+    finish();
+    nextBtn.disabled = true;
+  }
+});
 
-    // ===== DOM =====
-    const gate = document.getElementById('gate');
-    const err = document.getElementById('err');
-    const feed = document.getElementById('feed');
-    const choiceWrap = document.getElementById('choiceWrap');
-    const trustFill = document.getElementById('trustFill');
-    const trustVal = document.getElementById('trustVal');
-    const mVal = document.getElementById('mVal');
-    const cVal = document.getElementById('cVal');
-    const tVal = document.getElementById('tVal');
-    const pVal = document.getElementById('pVal');
-    const scoreEl = document.getElementById('score');
-    const personaEl = document.getElementById('persona');
-    const coach = document.getElementById('coach');
-    const summary = document.getElementById('summary');
-    const turnEl = document.getElementById('turn');
-    const goodCountEl = document.getElementById('goodCount');
-    const app = document.getElementById('app');
-    const appHeader = document.getElementById('appHeader');
-    const foot = document.getElementById('foot');
+// ----- Init -----
+function init(){
+  // Build left step list initially
+  renderSteps();
+  // Initialize bars/tags
+  setTrust(0);
+  renderMCTP();
+  // First step
+  renderStep();
+}
 
-    // ===== PASSWORD =====
-    function unlock(){
-      const val = (document.getElementById('pw').value || "").trim();
-      if(val === PASSWORD){
-        gate.classList.add('hidden');
-        app.classList.remove('hidden');
-        appHeader.classList.remove('hidden');
-        foot.classList.remove('hidden');
-        restart();
-      }else{
-        err.style.display='block';
-        setTimeout(()=>{err.style.display='none'},1600);
-      }
-    }
+// ----- Access Gate -----
+const gateModal = document.getElementById('gateModal');
+const gateBtn = document.getElementById('gateBtn');
+const gateInput = document.getElementById('gateInput');
+const gateErr = document.getElementById('gateErr');
 
-    // ===== FLOW =====
-    function restart(){
-      state = newState();
-      feed.innerHTML='';
-      choiceWrap.innerHTML='';
-      summary.textContent = "Complete 5 turns to see the breakdown and coaching notes.";
-      personaEl.textContent = state.persona.name + " — " + state.persona.blurb;
-      coach.textContent = "Keep your tone calm, curious, and confident. Guide, don’t pressure.";
-      updateHUD();
-      pushSeller("Hi, thanks for reaching out. What can you tell me?");
-      nextTurn(true);
-    }
+function unlock(){
+  const v = (gateInput.value || "").trim();
+  if(v===PASS){
+    sessionStorage.setItem('apex_trainer_ok','1');
+    gateModal.style.display = 'none';
+    init();
+  } else {
+    gateErr.textContent = "Incorrect password. Hint: SellerConvo2025";
+  }
+}
+gateBtn.addEventListener('click', unlock);
+gateInput.addEventListener('keydown', e=>{ if(e.key==='Enter') unlock(); });
 
-    function nextTurn(isOpening=false){
-      state.turn++;
-      turnEl.textContent = state.turn;
-      choiceWrap.innerHTML='';
-
-      let categories;
-      if(isOpening){
-        categories = ['opening'];
-      }else if(state.turn <= 3){
-        categories = ['motivation','condition','timeline','price'];
-      }else{
-        categories = ['pushback','objection','closing'];
-      }
-
-      const cat = categories[Math.floor(Math.random()*categories.length)];
-      const options = shuffle(pool[cat]).slice(0,3);
-
-      options.forEach(opt => {
-        const div = document.createElement('div');
-        div.className = 'choice';
-        div.innerHTML = opt.t;
-        div.onclick = ()=> choose(opt, cat);
-        choiceWrap.appendChild(div);
-      });
-    }
-
-    function choose(opt, cat){
-      // Apply trust and discovery
-      const prevTrust = state.trust;
-      state.trust = clamp(state.trust + (opt.trust||0), 0, state.maxTrust);
-
-      // "Good" choice heuristic: positive trust + reveals info
-      const good = (opt.trust||0) > 0 || !!opt.r;
-      if(good) state.goodChoices++;
-
-      // Reveal MCTP
-      if(opt.r){ state.found[opt.r] = true; }
-
-      // Echo dialogue
-      pushYou(opt.t);
-      setTimeout(()=>{
-        pushSeller(sellerReply(cat, opt, prevTrust));
-      },200);
-
-      // Scoring per turn
-      let turnScore = 0;
-      if(opt.trust>0) turnScore += 8;
-      if(opt.r) turnScore += 8;
-      if(opt.trust<0) turnScore -= 6;
-      state.score = clamp(state.score + turnScore, 0, 100);
-
-      updateHUD();
-
-      // End or continue
-      if(state.turn >= 5){
-        endSession();
-      }else{
-        setTimeout(()=>nextTurn(false), 320);
-      }
-    }
-
-    function endSession(){
-      choiceWrap.innerHTML='';
-      // Hint penalty
-      if(state.usedHint) state.score = clamp(state.score - 10, 0, 100);
-
-      // MCTP bonus
-      const mctpCount = Object.values(state.found).filter(Boolean).length;
-      state.score = clamp(state.score + mctpCount*5, 0, 100);
-
-      // Trust bonus
-      if(state.trust >= 7) state.score = clamp(state.score + 10, 0, 100);
-
-      updateHUD();
-
-      const status = (mctpCount>=3 && state.trust>=3) ? "✅ Deal-ready conversation." : "⚠️ Missing elements before making an offer.";
-      const notes = [
-        mctpCount<3 ? "Increase discovery — aim for at least 3 of M/C/T/P." : "Great discovery — you hit the key motivators.",
-        state.trust<3 ? "Build more trust using empathy and clarity." : "Trust level is solid — now transition to terms."
-      ];
-
-      summary.innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr;gap:8px">
-          <div><strong>Status:</strong> ${status}</div>
-          <div><strong>MCTP Found:</strong> ${mctpCount}/4 —
-            <span>${state.found.M?'M':'—'}</span> •
-            <span>${state.found.C?'C':'—'}</span> •
-            <span>${state.found.T?'T':'—'}</span> •
-            <span>${state.found.P?'P':'—'}</span>
-          </div>
-          <div><strong>Trust:</strong> ${state.trust}/10</div>
-          <div><strong>Good choices used:</strong> ${state.goodChoices}</div>
-          <div style="margin-top:6px"><strong>Apex Coaching:</strong> ${notes.join(' ')} Keep control, keep it kind, and lead the seller to clarity.</div>
-        </div>
-      `;
-    }
-
-    // ===== UI HELPERS =====
-    function updateHUD(){
-      trustFill.style.width = (state.trust/state.maxTrust*100).toFixed(0)+'%';
-      trustVal.textContent = state.trust + " / " + state.maxTrust;
-      mVal.textContent = state.found.M ? "✅" : "❌";
-      cVal.textContent = state.found.C ? "✅" : "❌";
-      tVal.textContent = state.found.T ? "✅" : "❌";
-      pVal.textContent = state.found.P ? "✅" : "❌";
-      goodCountEl.textContent = state.goodChoices;
-      scoreEl.textContent = state.score + " / 100";
-    }
-
-    function hint(){
-      if(state.usedHint) return;
-      state.usedHint = true;
-      // Mark the "best" choice (highest trust + reveal)
-      const nodes = Array.from(choiceWrap.children);
-      let bestIdx = 0, bestScore = -999;
-      nodes.forEach((node, i)=>{
-        const text = node.textContent.trim();
-        const match = findInPools(text);
-        const score = (match?.trust||0) + (match?.r ? 1.5 : 0);
-        if(score > bestScore){ bestScore = score; bestIdx = i; }
-      });
-      if(nodes[bestIdx]) nodes[bestIdx].classList.add('hint');
-    }
-
-    function findInPools(text){
-      const keys = Object.keys(pool);
-      for(const k of keys){
-        const f = pool[k].find(x=>x.t===text);
-        if(f) return f;
-      }
-      return null;
-    }
-
-    function pushYou(t){
-      state.history.push({ who:'you', t });
-      const row = document.createElement('div'); row.className='row';
-      row.innerHTML = `<div class="bubble you">🗣️ <strong>You:</strong> ${escapeHTML(t)}</div>`;
-      feed.appendChild(row); feed.scrollTop = feed.scrollHeight;
-    }
-    function pushSeller(t){
-      state.history.push({ who:'seller', t });
-      const row = document.createElement('div'); row.className='row';
-      row.innerHTML = `<div class="bubble seller">🏠 <strong>Seller:</strong> ${escapeHTML(t)}</div>`;
-      feed.appendChild(row); feed.scrollTop = feed.scrollHeight;
-    }
-
-    function sellerReply(cat, opt, prevTrust){
-      const delta = (opt.trust||0);
-      if(cat==='opening'){
-        if(delta>0) return "Thanks for being professional. I’m open to talking.";
-        if(delta<0) return "That’s a bit aggressive…";
-        return "Okay. What do you need from me?";
-      }
-      if(cat==='motivation'){
-        if(opt.r==='M') return rand([
-          "We’re relocating for work and need to move soon.",
-          "I inherited this place and it’s a lot to manage.",
-          "Just tired of the maintenance — it’s time."
-        ]);
-        if(delta<0) return "Why the attitude?";
-        return "Not sure that matters yet.";
-      }
-      if(cat==='condition'){
-        if(opt.r==='C') return rand([
-          "Roof is older and HVAC is near end-of-life.",
-          "Mostly cosmetics — paint, floors, dated kitchen.",
-          "Some plumbing issues and cracks in the slab."
-        ]);
-        if(delta<0) return "That’s not the best way to ask.";
-        return "You can inspect it if we move forward.";
-      }
-      if(cat==='timeline'){
-        if(opt.r==='T') return rand([
-          "Ideally 30 days.",
-          "As soon as possible — already moved out.",
-          "No rush, but within 60 days would be great."
-        ]);
-        if(delta<0) return "You seem in a hurry — I’m not sure.";
-        return "Depends on the offer.";
-      }
-      if(cat==='price'){
-        if(opt.r==='P') return rand([
-          "I was thinking somewhere around the low 200s.",
-          "I’d like to be near what similar homes sold for.",
-          "I have a range but I want to hear your number first."
-        ]);
-        if(delta<0) return "I’m not giving a bottom line.";
-        return "Maybe — if everything else makes sense.";
-      }
-      if(cat==='pushback'){
-        if(delta>0) return "Okay, I appreciate you working with me.";
-        if(delta<0) return "That tone isn’t helping.";
-        return "Alright — I’m listening.";
-      }
-      if(cat==='objection'){
-        if(delta>0) return "That helps — walk me through your logic.";
-        if(delta<0) return "I don’t buy that.";
-        return "Okay… show me your comps.";
-      }
-      if(cat==='closing'){
-        if(delta>0) return "This feels fair. I’m leaning yes.";
-        if(delta<0) return "I need time. Don’t push.";
-        return "Let me think on it.";
-      }
-      return "Okay.";
-    }
-
-    // ===== UTIL =====
-    function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
-    function rand(a){return a[Math.floor(Math.random()*a.length)];}
-    function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
-    function escapeHTML(s){return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-    // Expose some funcs (optional)
-    window.unlock = unlock;
-    window.restart = restart;
-    window.hint = hint;
-  </script>
+if(sessionStorage.getItem('apex_trainer_ok')==='1'){
+  gateModal.style.display = 'none';
+  init();
+}
+</script>
 </body>
 </html>
